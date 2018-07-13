@@ -19,7 +19,7 @@ setup(
       author_email     =   'dev@babymri.org',
       url              =   'https://github.com/FNNDSC/med2image',
       packages         =   ['pfdicom'],
-      install_requires =   ['pfmisc', 'pftree'],
+      install_requires =   ['pfmisc', 'pftree', 'pydicom', 'pydicom-ext'],
       #test_suite       =   'nose.collector',
       #tests_require    =   ['nose'],
       scripts          =   ['bin/pfdicom'],

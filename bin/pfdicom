@@ -167,6 +167,12 @@ parser.add_argument("--printElapsedTime",
                     dest    = 'printElapsedTime',
                     action  = 'store_true',
                     default = False)
+parser.add_argument('--version',
+                    help    = 'if specified, print version number',
+                    dest    = 'b_version',
+                    action  = 'store_true',
+                    default = False)
+
 args = parser.parse_args()
 
 if args.man or args.synopsis:
