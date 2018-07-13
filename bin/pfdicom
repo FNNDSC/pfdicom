@@ -178,7 +178,11 @@ if args.man or args.synopsis:
     print(str_help)
     sys.exit(1)
 
-pudb.set_trace()
+if args.b_version:
+    print("Version: %s" % str_version)
+    sys.exit(1)
+
+# pudb.set_trace()
 
 pf_dicom             = pfdicom.pfdicom(
                         inputDir            = args.inputDir,
