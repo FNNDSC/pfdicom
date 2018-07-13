@@ -254,7 +254,7 @@ class pfdicom(object):
                 self.d_dicomSimple[key] = "no attribute"
             d_dicomJSON[key]        = str(self.d_dicomSimple[key])
 
-        pudb.set_trace()
+        # pudb.set_trace()
         d_tagsInString  = self.tagsInString_process(self.str_outputFileStem)
         str_outputFile  = d_tagsInString['str_result']
 
