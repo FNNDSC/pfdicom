@@ -118,7 +118,8 @@ class pfdicom(object):
                             inputDir                = self.str_inputDir,
                             inputFile               = self.str_inputFile,
                             outputDir               = self.str_outputDir,
-                            verbosity               = self.verbosityLevel
+                            verbosity               = self.verbosityLevel,
+                            relativeDir             = True
         )
 
         # Set logging
