@@ -196,11 +196,10 @@ class pfdicom(object):
                     str_replace = hashlib.md5(str_replace.encode('utf-8')).hexdigest()
                     l_funcTag   = func.split('_')[1:]
                     func        = l_funcTag[0]
-                    tag         = l_funcTag[1]
                     l_args      = func.split('.')
                     if len(l_args) > 1:
                         chars   = l_args[1]
-                        str_replace     = str_replace[0:4]
+                        str_replace     = str_replace[0:int(chars)]
                     astr = astr.replace('_%s_' % func, '')
                 astr  = astr.replace('%' + tag, str_replace)
         
