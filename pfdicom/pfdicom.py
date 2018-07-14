@@ -226,9 +226,9 @@ class pfdicom(object):
 
         str_localFile   = os.path.basename(str_file)
         str_path        = os.path.dirname(str_file)
-        self.dp.qprint("In input base directory:      %s" % self.str_inputDir)
-        self.dp.qprint("Reading DICOM file in path:   %s" % str_path)
-        self.dp.qprint("Analysing tags on DICOM file: %s" % str_localFile)      
+        # self.dp.qprint("In input base directory:      %s" % self.str_inputDir)
+        # self.dp.qprint("Reading DICOM file in path:   %s" % str_path)
+        # self.dp.qprint("Analysing tags on DICOM file: %s" % str_localFile)      
         try:
             self.dcm    = dicom.read_file(str_file)
             b_status    = True
