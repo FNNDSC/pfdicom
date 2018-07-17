@@ -215,10 +215,11 @@ class pfdicom(object):
         l_tags          = []
         l_tagsToUse     = []
         d_tagsInString  = {}
+        str_file        = ""
 
         for k, v in kwargs.items():
             if k == 'file':             str_file    = v
-            if k == 'l_tagsToUse ':     l_tags      = v
+            if k == 'l_tagsToUse':      l_tags      = v
 
         if len(args):
             l_file          = args[0]
