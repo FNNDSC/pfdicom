@@ -47,31 +47,38 @@ str_desc = Colors.CYAN + """
 
 def synopsis(ab_shortOnly = False):
     scriptName = os.path.basename(sys.argv[0])
-    shortSynopsis =  '''
+    print(scriptName)
+    shortSynopsis =  """
     NAME
 
-	    %s - read a DICOM file and provide methods for further analysis.
+        {scriptName} 
 
     SYNOPSIS
 
-            %s                                       \\
+        {scriptSyn}                                             \\
                     -I|--inputDir <inputDir>                \\
                     [-i|--inputFile <inputFile>]            \\
                     [-e|--extension <DICOMextension>]       \\
-                    [-O|--outputDir <outputDir>]            \\
+                     -O|--outputDir <outputDir>             \\
+                    [-t|--threads <numThreads>]             \\
                     [-x|--man]                              \\
                     [-y|--synopsis]
 
     BRIEF EXAMPLE
 
-	    %s -l tagList.txt -i slice.dcm
+        {scriptEx}                                              \\
+                        -I /var/www/html                    \\
+                        -O /tmp                             \\
+                        -o %PatientID-%PatientAge           \\
+                        -e dcm                              \\
+                        --printElapsedTime 
 
-    ''' % (scriptName, scriptName, scriptName)
+    """.format(scriptName = scriptName, scriptSyn = scriptName, scriptEx = scriptName)
 
-    description =  '''
+    description =  """
     DESCRIPTION
 
-        `%s` in and of itself provides minimal end value. This module/class
+        `{script}` in and of itself provides minimal end value. This module/class
         is intended to be a building block for deeper functionality. Its
         purpose is to probe a given directory filesystem for DICOM files and 
         construct a tree representation (using pftree), and then, for each
@@ -90,17 +97,38 @@ def synopsis(ab_shortOnly = False):
         directory is examined for its tag information. There is an implicit
         assumption that each <inputDir> contains a single DICOM series.
 
-        -i|--inputFile <inputFile>
+        [-i|--inputFile <inputFile>]
         An optional <inputFile> specified relative to the <inputDir>. If 
         specified, then do not perform a directory walk, but convert only 
         this file.
 
-        [-O|--outputDir <outputDir>]
+        -O|--outputDir <outputDir>
         The directory to contain all output files.
 
-        -e|--extension <DICOMextension>
+        [-e|--extension <DICOMextension>]
         An optional extension to filter the DICOM files of interest from the 
-        <inputDir>.
+        <inputDir>. This is merely held by this base class as a member 
+        variable. Derived classes can access this for further processing.
+
+        [-t|--threads <numThreads>]
+        If specified, break the innermost analysis loop into <numThreads>
+        threads. Please note the following caveats:
+
+            * Only thread if you have a high CPU analysis loop. Since
+              most of the operations of this module will entail reading
+              and writing DICOM files, and since these operations are 
+              the bulk of the execution time, adding threading will not
+              really help.
+
+            * Threading will change the nature of the innermost looping
+              across the problem domain, with the result that *all* of the
+              problem data will be read into memory! That means all of 
+              DICOMs across all of the subdirs! In non-threading mode,
+              only DICOMs from a single directory at a time are read
+              and then discarded.
+
+        This flag is less applicable to this base class. It is here
+        to provide fall-through compatibility with derived classes.
 
         [-x|--man]
         Show full help.
@@ -116,8 +144,14 @@ def synopsis(ab_shortOnly = False):
 
     EXAMPLES
 
+        pfdicom         -I /var/www/html                \\
+                        -O /tmp                         \\
+                        -o %PatientID-%PatientAge       \\
+                        -e dcm                          \\
+                        --printElapsedTime              
 
-    ''' % (scriptName)
+    """.format(script=scriptName)
+
     if ab_shortOnly:
         return shortSynopsis
     else:
@@ -153,6 +187,10 @@ parser.add_argument("-e", "--extension",
                     help    = "DICOM file extension",
                     dest    = 'extension',
                     default = '')
+parser.add_argument("-t", "--threads",
+                    help    = "number of threads for innermost loop processing",
+                    dest    = 'threads',
+                    default = "0")
 parser.add_argument("-y", "--synopsis",
                     help    = "short synopsis",
                     dest    = 'synopsis',
@@ -195,6 +233,8 @@ pf_dicom             = pfdicom.pfdicom(
                         inputFile           = args.inputFile,
                         outputDir           = args.outputDir,
                         outputFileStem      = args.outputFileStem,
+                        extension           = args.extension,
+                        threads             = args.threads,
                         verbosity           = args.verbosity
                     )
 
