@@ -56,6 +56,26 @@ Command line arguments
         An optional extension to filter the DICOM files of interest from the 
         <inputDir>.
 
+        [-t|--threads <numThreads>]
+        If specified, break the innermost analysis loop into <numThreads>
+        threads. Please note the following caveats:
+
+            * Only thread if you have a high CPU analysis loop. Since
+              most of the operations of this module will entail reading
+              and writing DICOM files, and since these operations are 
+              the bulk of the execution time, adding threading will not
+              really help.
+
+            * Threading will change the nature of the innermost looping
+              across the problem domain, with the result that *all* of the
+              problem data will be read into memory! That means all of 
+              DICOMs across all of the subdirs! In non-threading mode,
+              only DICOMs from a single directory at a time are read
+              and then discarded.
+
+        This flag is less applicable to this base class. It is here
+        to provide fall-through compatibility with derived classes.
+
         [-x|--man]
         Show full help.
 
@@ -72,12 +92,13 @@ Command line arguments
 Examples
 ~~~~~~~~
 
-Run on a target tree and output some detail and stats
+Run on a target tree, exploring the space of all possible targets.
 
 .. code:: bash
 
         pfdicom         -I /var/www/html                \
                         -O /tmp                         \
                         -o %PatientID-%PatientAge       \
+                        -e dcm                          \
                         --printElapsedTime              
 
