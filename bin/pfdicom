@@ -62,7 +62,8 @@ def synopsis(ab_shortOnly = False):
                      -O|--outputDir <outputDir>             \\
                     [-t|--threads <numThreads>]             \\
                     [-x|--man]                              \\
-                    [-y|--synopsis]
+                    [-y|--synopsis]                         \\
+                    [--json]
 
     BRIEF EXAMPLE
 
@@ -136,6 +137,9 @@ def synopsis(ab_shortOnly = False):
         [-y|--synopsis]
         Show brief help.
 
+        [--json]
+        If true, dump the final return as JSON formatted string.
+
         -v|--verbosity <level>
         Set the app verbosity level. 
 
@@ -205,6 +209,11 @@ parser.add_argument("--printElapsedTime",
                     dest    = 'printElapsedTime',
                     action  = 'store_true',
                     default = False)
+parser.add_argument("--json",
+                    help    = "output final return in json",
+                    dest    = 'json',
+                    action  = 'store_true',
+                    default = False)
 parser.add_argument('--version',
                     help    = 'if specified, print version number',
                     dest    = 'b_version',
@@ -235,7 +244,8 @@ pf_dicom             = pfdicom.pfdicom(
                         outputFileStem      = args.outputFileStem,
                         extension           = args.extension,
                         threads             = args.threads,
-                        verbosity           = args.verbosity
+                        verbosity           = args.verbosity,
+                        json                = args.json
                     )
 
 # And now run it!
