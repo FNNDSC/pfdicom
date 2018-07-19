@@ -12,7 +12,7 @@ def readme():
 
 setup(
       name             =   'pfdicom',
-      version          =   '1.2.0',
+      version          =   '1.2.2',
       description      =   '(Python) Base module for parsing DICOM files in the pf* family.',
       long_description =   readme(),
       author           =   'FNNDSC',
