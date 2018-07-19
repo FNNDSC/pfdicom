@@ -69,6 +69,8 @@ class pfdicom(object):
         self.str_stderr                 = ''
         self.exitCode                   = 0
 
+        self.b_json                     = False
+
         # The actual data volume and slice
         # are numpy ndarrays
         self.dcm                        = None
@@ -108,14 +110,15 @@ class pfdicom(object):
         self.declare_selfvars()
 
         for key, value in kwargs.items():
-            if key == "inputDir":           self.str_inputDir           = value
-            if key == "inputFile":          self.str_inputFile          = value
-            if key == "outputDir":          self.str_outputDir          = value
-            if key == "outputFileStem":     self.str_outputFileStem     = value
+            if key == 'inputDir':           self.str_inputDir           = value
+            if key == 'inputFile':          self.str_inputFile          = value
+            if key == 'outputDir':          self.str_outputDir          = value
+            if key == 'outputFileStem':     self.str_outputFileStem     = value
             if key == 'extension':          self.str_extension          = value
             if key == 'threads':            self.numThreads             = int(value)
-            if key == "extension":          self.str_extension          = value
+            if key == 'extension':          self.str_extension          = value
             if key == 'verbosity':          self.verbosityLevel         = int(value)
+            if key == 'json':               self.b_json                 = bool(value)
 
         # Declare pf_tree
         self.pf_tree    = pftree.pftree(
@@ -129,8 +132,8 @@ class pfdicom(object):
 
         # Set logging
         self.dp                        = pfmisc.debug(    
-                                            verbosity   = self.verbosityLevel,
-                                            level       = 0,
+                                            verbosity   = 0,
+                                            level       = self.verbosityLevel,
                                             within      = self.__name__
                                             )
         self.log                       = pfmisc.Message()
@@ -351,11 +354,15 @@ class pfdicom(object):
                 )
         os.chdir(str_startDir)
 
-        return {
+        d_ret = {
             'status':           b_status and d_pftreeRun['status'],
             'd_env':            d_env,
             'd_pftreeRun':      d_pftreeRun,
             'd_inputAnalysis':  d_inputAnalysis
         }
-        
+
+        if self.b_json:
+            print(json.dumps(d_ret))
+
+        return d_ret
         
