@@ -16,6 +16,7 @@ import      pydicom             as      dicom
 import      pudb
 import      pftree
 import      hashlib
+import      threading
 
 class pfdicom(object):
     """
@@ -62,6 +63,7 @@ class pfdicom(object):
 
         # pftree dictionary
         self.pf_tree                    = None
+        self.numThreads                 = 1
 
         self.str_stdout                 = ''
         self.str_stderr                 = ''
@@ -106,11 +108,13 @@ class pfdicom(object):
         self.declare_selfvars()
 
         for key, value in kwargs.items():
-            if key == "inputDir":           self.str_inputDir          = value
-            if key == "inputFile":          self.str_inputFile         = value
-            if key == "outputDir":          self.str_outputDir         = value
-            if key == "outputFileStem":     self.str_outputFileStem    = value
-            if key == "extension":          self.str_extension         = value
+            if key == "inputDir":           self.str_inputDir           = value
+            if key == "inputFile":          self.str_inputFile          = value
+            if key == "outputDir":          self.str_outputDir          = value
+            if key == "outputFileStem":     self.str_outputFileStem     = value
+            if key == 'extension':          self.str_extension          = value
+            if key == 'threads':            self.numThreads             = int(value)
+            if key == "extension":          self.str_extension          = value
             if key == 'verbosity':          self.verbosityLevel         = int(value)
 
         # Declare pf_tree
@@ -118,6 +122,7 @@ class pfdicom(object):
                             inputDir                = self.str_inputDir,
                             inputFile               = self.str_inputFile,
                             outputDir               = self.str_outputDir,
+                            threads                 = self.numThreads,
                             verbosity               = self.verbosityLevel,
                             relativeDir             = True
         )
@@ -148,7 +153,7 @@ class pfdicom(object):
             'str_error':    str_error
         }
 
-    def tagsInString_process(self, astr, *args, **kwargs):
+    def tagsInString_process(self, d_DICOM, astr, *args, **kwargs):
         """
         This method substitutes DICOM tags that are '%'-tagged
         in a string template with the actual tag lookup.
@@ -167,7 +172,7 @@ class pfdicom(object):
         prefixed and suffixed string as part of the DICOM tag. If
         found, this function is applied to the tag value. For example,
 
-            %PatientAge-%_md5.4_PatientID-output.txt
+            %PatientAge-%_md5|4_PatientID-output.txt
 
         will apply an md5 hash to the PatientID and use the first 4
         characters:
@@ -188,18 +193,28 @@ class pfdicom(object):
 
         if '%' in astr:
             l_tags          = astr.split('%')[1:]
-            l_tagsToSub     = [i for i in self.l_tagRaw if any(i in b for b in l_tags)]
+            l_tagsToSub     = [i for i in d_DICOM['l_tagRaw'] if any(i in b for b in l_tags)]
             for tag, func in zip(l_tagsToSub, l_tags):
                 b_tagsFound     = True
-                str_replace     = self.d_dicomSimple[tag]
+                str_replace     = d_DICOM['d_dicomSimple'][tag]
                 if 'md5' in func:
                     str_replace = hashlib.md5(str_replace.encode('utf-8')).hexdigest()
                     l_funcTag   = func.split('_')[1:]
                     func        = l_funcTag[0]
-                    l_args      = func.split('.')
+                    l_args      = func.split('|')
                     if len(l_args) > 1:
                         chars   = l_args[1]
                         str_replace     = str_replace[0:int(chars)]
+                    astr = astr.replace('_%s_' % func, '')
+                if 'strmsk' in func:
+                    l_funcTag   = func.split('_')[1:]
+                    func        = l_funcTag[0]
+                    str_msk     = func.split('|')[1]
+                    l_n = []
+                    for i, j in zip(list(str_replace), list(str_msk)):
+                        if j == '*':    l_n.append(i)
+                        else:           l_n.append(j)
+                    str_replace = ''.join(l_n)
                     astr = astr.replace('_%s_' % func, '')
                 astr  = astr.replace('%' + tag, str_replace)
         
@@ -211,11 +226,32 @@ class pfdicom(object):
 
 
     def DICOMfile_read(self, *args, **kwargs):
+        """
+        Read a DICOM file and perform some initial
+        parsing of tags.
+
+        NB!
+        For thread safety, class member variables
+        should not be assigned since other threads
+        might override/change these variables in mid-
+        flight!
+
+        """
         b_status        = False
         l_tags          = []
         l_tagsToUse     = []
         d_tagsInString  = {}
         str_file        = ""
+
+        d_DICOM           = {
+            'dcm':              None,
+            'd_dcm':            {},
+            'strRaw':           '',
+            'l_tagRaw':         [],
+            'd_json':           {},
+            'd_dicom':          {},
+            'd_dicomSimple':    {}
+        }
 
         for k, v in kwargs.items():
             if k == 'file':             str_file    = v
@@ -227,37 +263,41 @@ class pfdicom(object):
 
         str_localFile   = os.path.basename(str_file)
         str_path        = os.path.dirname(str_file)
-        # self.dp.qprint("In input base directory:      %s" % self.str_inputDir)
-        # self.dp.qprint("Reading DICOM file in path:   %s" % str_path)
-        # self.dp.qprint("Analysing tags on DICOM file: %s" % str_localFile)      
+        # self.dp.qprint("%s: In input base directory:      %s" % (threading.currentThread().getName(), self.str_inputDir))
+        # self.dp.qprint("%s: Reading DICOM file in path:   %s" % (threading.currentThread().getName(),str_path))
+        # self.dp.qprint("%s: Analysing tags on DICOM file: %s" % (threading.currentThread().getName(),str_localFile))      
+        # self.dp.qprint("%s: Loading:                      %s" % (threading.currentThread().getName(),str_file))
+
         try:
-            self.dcm    = dicom.read_file(str_file)
+            # self.dcm    = dicom.read_file(str_file)
+            d_DICOM['dcm']  = dicom.read_file(str_file)
             b_status    = True
         except:
+            self.dp.qprint('In directory: %s' % os.getcwd(),    comms = 'error')
+            self.dp.qprint('Failed to read %s' % str_file,      comms = 'error')
             b_status    = False
-        self.d_dcm      = dict(self.dcm)
-        self.strRaw     = str(self.dcm)
-        self.l_tagRaw   = self.dcm.dir()
+        d_DICOM['d_dcm']    = dict(d_DICOM['dcm'])
+        d_DICOM['strRaw']   = str(d_DICOM['dcm'])
+        d_DICOM['l_tagRaw'] = d_DICOM['dcm'].dir()
 
         if len(l_tags):
             l_tagsToUse     = l_tags
         else:
-            l_tagsToUse     = self.l_tagRaw
+            l_tagsToUse     = d_DICOM['l_tagRaw']
 
         if 'PixelData' in l_tagsToUse:
             l_tagsToUse.remove('PixelData')
 
-        d_dicomJSON     = {}
         for key in l_tagsToUse:
-            self.d_dicom[key]       = self.dcm.data_element(key)
+            d_DICOM['d_dicom'][key]       = d_DICOM['dcm'].data_element(key)
             try:
-                self.d_dicomSimple[key] = getattr(self.dcm, key)
+                d_DICOM['d_dicomSimple'][key] = getattr(d_DICOM['dcm'], key)
             except:
-                self.d_dicomSimple[key] = "no attribute"
-            d_dicomJSON[key]        = str(self.d_dicomSimple[key])
+                d_DICOM['d_dicomSimple'][key] = "no attribute"
+            d_DICOM['d_json'][key]        = str(d_DICOM['d_dicomSimple'][key])
 
         # pudb.set_trace()
-        d_tagsInString  = self.tagsInString_process(self.str_outputFileStem)
+        d_tagsInString  = self.tagsInString_process(d_DICOM, self.str_outputFileStem)
         str_outputFile  = d_tagsInString['str_result']
 
         return {
@@ -265,8 +305,21 @@ class pfdicom(object):
             'inputPath':        str_path,
             'inputFilename':    str_localFile,
             'outputFileStem':   str_outputFile,
-            'd_dicomJSON':      d_dicomJSON,
+            'd_DICOM':          d_DICOM,
             'l_tagsToUse':      l_tagsToUse
+        }
+
+    def filelist_prune(self, at_data, *args, **kwargs):
+        """
+        Given a list of files, possibly prune list by 
+        extension.
+        """
+        al_file = at_data[1]
+        if len(self.str_extension):
+            al_file = [x for x in al_file if self.str_extension in x]
+        return {
+            'status':   True,
+            'l_file':   al_file
         }
 
     def run(self, *args, **kwargs):
@@ -274,18 +327,35 @@ class pfdicom(object):
         The run method is merely a thin shim down to the 
         embedded pftree run method.
         """
-        b_status    = True
-        d_pftreeRun = {}
+        b_status            = True
+        d_pftreeRun         = {}
+        d_inputAnalysis     = {}
+        d_env               = self.env_check()
 
-        d_env       = self.env_check()
         if d_env['status']:
             d_pftreeRun = self.pf_tree.run()
         else:
             b_status    = False 
 
+        str_startDir    = os.getcwd()
+        os.chdir(self.str_inputDir)
+        if b_status:
+            if len(self.str_extension):
+                d_inputAnalysis = self.pf_tree.tree_process(
+                                inputReadCallback       = None,
+                                analysisCallback        = self.filelist_prune,
+                                outputWriteCallback     = None,
+                                applyResultsTo          = 'inputTree',
+                                applyKey                = 'l_file',
+                                persistAnalysisResults  = True
+                )
+        os.chdir(str_startDir)
+
         return {
-            'status':       b_status and d_pftreeRun['status'],
-            'd_env':        d_env,
-            'd_pftreeRun':  d_pftreeRun
+            'status':           b_status and d_pftreeRun['status'],
+            'd_env':            d_env,
+            'd_pftreeRun':      d_pftreeRun,
+            'd_inputAnalysis':  d_inputAnalysis
         }
+        
         
