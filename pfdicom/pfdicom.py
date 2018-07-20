@@ -325,6 +325,22 @@ class pfdicom(object):
             'l_file':   al_file
         }
 
+    def ret_dump(self, d_ret, **kwargs):
+        """
+        JSON print results to console (or caller)
+        """
+        b_print     = True
+        for k, v in kwargs.items():
+            if k == 'JSONprint':    b_print     = bool(v)
+        if b_print:
+            print(
+                json.dumps(   
+                    d_ret, 
+                    indent      = 4,
+                    sort_keys   = True
+                )
+        )
+
     def run(self, *args, **kwargs):
         """
         The run method is merely a thin shim down to the 
@@ -362,7 +378,7 @@ class pfdicom(object):
         }
 
         if self.b_json:
-            print(json.dumps(d_ret))
+            self.ret_dump(d_ret, **kwargs)
 
         return d_ret
         
