@@ -249,7 +249,12 @@ pf_dicom             = pfdicom.pfdicom(
                     )
 
 # And now run it!
-other.tic()
-pf_dicom.run()
-if args.printElapsedTime: pf_dicom.dp.qprint("Elapsed time = %f seconds" % other.toc())
+d_pfdicom = pf_dicom.run(timerStart = True)
+
+if args.printElapsedTime: 
+    pf_dicom.dp.qprint(
+                        "Elapsed time = %f seconds" % 
+                        d_pfdicom['runTime']
+                        )
+
 sys.exit(0)
