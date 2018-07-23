@@ -19,7 +19,7 @@ import  pfmisc
 from    pfmisc._colors      import Colors
 from    pfmisc              import other
 
-str_version = "1.2.6"
+str_version = "1.2.8"
 str_desc = Colors.CYAN + """
 
         __    _ _                     
@@ -143,8 +143,10 @@ def synopsis(ab_shortOnly = False):
         -v|--verbosity <level>
         Set the app verbosity level. 
 
-             -1: No internal output.
-              0: All internal output.
+            0: No internal output;
+            1: Most important internal output -- none for 'pfdicom';
+            2: As with level '1' but with simpleProgress bar in 'pftree';
+            3: As with level '2' but with list of input dirs/files in 'pftree';
 
     EXAMPLES
 
@@ -152,7 +154,10 @@ def synopsis(ab_shortOnly = False):
                         -O /tmp                         \\
                         -o %PatientID-%PatientAge       \\
                         -e dcm                          \\
-                        --printElapsedTime              
+                        -v 0 --json
+
+        which will output only at script conclusion and will log a JSON 
+        formatted string.
 
     """.format(script=scriptName)
 

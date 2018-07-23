@@ -91,7 +91,7 @@ class pfdicom(object):
         self.log                        = None
         self.tic_start                  = 0.0
         self.pp                         = pprint.PrettyPrinter(indent=4)
-        self.verbosityLevel             = -1
+        self.verbosityLevel             = 1
 
     def __init__(self, **kwargs):
         """

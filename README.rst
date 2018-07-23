@@ -85,8 +85,10 @@ Command line arguments
         -v|--verbosity <level>
         Set the app verbosity level. 
 
-             -1: No internal output.
-              0: All internal output.
+            0: No internal output;
+            1: Most important internal output -- none for 'pfdicom';
+            2: As with level '1' but with simpleProgress bar in 'pftree';
+            3: As with level '2' but with list of input dirs/files in 'pftree';
 
 
 Examples
@@ -100,5 +102,7 @@ Run on a target tree, exploring the space of all possible targets.
                         -O /tmp                         \
                         -o %PatientID-%PatientAge       \
                         -e dcm                          \
-                        --printElapsedTime              
+                        -v 0 --json
+
+        which will output only at script conclusion and will log a JSON formatted string.
 
