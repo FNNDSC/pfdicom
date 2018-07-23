@@ -203,7 +203,7 @@ parser.add_argument("-y", "--synopsis",
 parser.add_argument("-v", "--verbosity",
                     help    = "verbosity level for app",
                     dest    = 'verbosity',
-                    default = "0")
+                    default = "1")
 parser.add_argument("--printElapsedTime",
                     help    = "print program run time",
                     dest    = 'printElapsedTime',
