@@ -350,9 +350,16 @@ class pfdicom(object):
         d_pftreeRun         = {}
         d_inputAnalysis     = {}
         d_env               = self.env_check()
+        b_timerStart        = False
+
+        for k, v in kwargs.items():
+            if k == 'timerStart':   b_timerStart    = bool(v)
+
+        if b_timerStart:
+            other.tic()
 
         if d_env['status']:
-            d_pftreeRun = self.pf_tree.run()
+            d_pftreeRun = self.pf_tree.run(timerStart = False)
         else:
             b_status    = False 
 
@@ -374,7 +381,8 @@ class pfdicom(object):
             'status':           b_status and d_pftreeRun['status'],
             'd_env':            d_env,
             'd_pftreeRun':      d_pftreeRun,
-            'd_inputAnalysis':  d_inputAnalysis
+            'd_inputAnalysis':  d_inputAnalysis,
+            'runTime':          other.toc()
         }
 
         if self.b_json:
