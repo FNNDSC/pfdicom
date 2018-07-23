@@ -94,7 +94,7 @@ Command line arguments
 Examples
 ~~~~~~~~
 
-Run on a target tree, exploring the space of all possible targets.
+Run on a target tree, creating internal representations of specific file and directory strucutres.
 
 .. code:: bash
 
