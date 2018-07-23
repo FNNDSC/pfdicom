@@ -392,7 +392,7 @@ class pfdicom(object):
         if self.b_json:
             self.ret_dump(d_ret, **kwargs)
 
-        self.dp.qprint('\tReturing from pfdicom run...', level = 1)
+        self.dp.qprint('\tReturning from pfdicom run...', level = 1)
 
         return d_ret
         
