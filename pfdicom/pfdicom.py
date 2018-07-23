@@ -351,6 +351,11 @@ class pfdicom(object):
         d_env               = self.env_check()
         b_timerStart        = False
 
+        self.dp.qprint(
+                "\tStarting pdicom run... (please be patient while running)", 
+                level = 1
+                )
+
         for k, v in kwargs.items():
             if k == 'timerStart':   b_timerStart    = bool(v)
 
@@ -386,6 +391,8 @@ class pfdicom(object):
 
         if self.b_json:
             self.ret_dump(d_ret, **kwargs)
+
+        self.dp.qprint('\tReturing from pfdicom run...', level = 1)
 
         return d_ret
         
