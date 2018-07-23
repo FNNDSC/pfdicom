@@ -132,8 +132,7 @@ class pfdicom(object):
 
         # Set logging
         self.dp                        = pfmisc.debug(    
-                                            verbosity   = 0,
-                                            level       = self.verbosityLevel,
+                                            verbosity   = self.verbosityLevel,
                                             within      = self.__name__
                                             )
         self.log                       = pfmisc.Message()
