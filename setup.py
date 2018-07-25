@@ -12,12 +12,12 @@ def readme():
 
 setup(
       name             =   'pfdicom',
-      version          =   '1.2.12',
+      version          =   '1.2.14',
       description      =   '(Python) Base module for parsing DICOM files in the pf* family.',
       long_description =   readme(),
       author           =   'FNNDSC',
       author_email     =   'dev@babymri.org',
-      url              =   'https://github.com/FNNDSC/med2image',
+      url              =   'https://github.com/FNNDSC/pfdicom',
       packages         =   ['pfdicom'],
       install_requires =   ['pfmisc', 'pftree', 'pydicom', 'pydicom-ext'],
       #test_suite       =   'nose.collector',
