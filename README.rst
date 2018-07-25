@@ -1,6 +1,17 @@
 pfdicom
 =======
 
+.. image:: https://badge.fury.io/py/pfdicom.svg
+    :target: https://badge.fury.io/py/pfdicom
+
+.. image:: https://travis-ci.org/FNNDSC/pfdicom.svg?branch=master
+    :target: https://travis-ci.org/FNNDSC/pfdicom
+
+.. image:: https://img.shields.io/badge/python-3.5%2B-blue.svg
+    :target: https://badge.fury.io/py/pfdicom
+
+.. contents:: Table of Contents
+
 Quick Overview
 --------------
 
