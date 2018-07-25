@@ -192,11 +192,16 @@ class pfdicom(object):
         tag                 = ''        # the tag in the funcTag combo
         chars               = ''        # the number of resultant chars from func
                                         # result to use
-
         if '%' in astr:
             l_tags          = astr.split('%')[1:]
+            # Find which tags (mangled) in string match actual tags
             l_tagsToSub     = [i for i in d_DICOM['l_tagRaw'] if any(i in b for b in l_tags)]
-            for tag, func in zip(l_tagsToSub, l_tags):
+            # Need to arrange l_tagsToSub in same order as l_tags
+            l_tagsToSubSort =  sorted(
+                l_tagsToSub, 
+                key = lambda x: [i for i, s in enumerate(l_tags) if x in s][0]
+            )
+            for tag, func in zip(l_tagsToSubSort, l_tags):
                 b_tagsFound     = True
                 str_replace     = d_DICOM['d_dicomSimple'][tag]
                 if 'md5' in func:
