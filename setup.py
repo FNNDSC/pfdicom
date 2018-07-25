@@ -12,8 +12,8 @@ def readme():
 
 setup(
       name             =   'pfdicom',
-      version          =   '1.2.14',
-      description      =   '(Python) Base module for parsing DICOM files in the pf* family.',
+      version          =   '1.2.16',
+      description      =   'Base module for parsing DICOM files in the pf* family.',
       long_description =   readme(),
       author           =   'FNNDSC',
       author_email     =   'dev@babymri.org',
