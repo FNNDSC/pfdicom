@@ -4,14 +4,14 @@ pfdicom
 Quick Overview
 --------------
 
--  pfdicom is primarily a base module for other, more specialized classes. It typically is never used on its own.
+-  ``pfdicom`` is primarily a base module for other, more specialized classes. It typically is never used on its own.
 
 Overview
 --------
 
-pfdicom in and of itself provides minimal end value. This module/class is intended to be a building block for deeper functionality. Its purpose is to probe a given directory filesystem for DICOM files and construct a tree representation (using pftree), and then, for each directory provide the means to read in a given DICOM file (using pydicom) to provide some minimal tag extraction and output file templating.
+``pfdicom`` in and of itself provides minimal end value. This module/class is intended to be a building block for deeper functionality. Its purpose is to probe a given directory filesystem for DICOM files and construct a tree representation (using pftree), and then, for each directory provide the means to read in a given DICOM file (using pydicom) to provide some minimal tag extraction and output file templating.
 
-Most importantly, derived classes of this parent class can provide detailed and powerful methods to process the directories containing DICOM files, saving results to an output file tree.
+Most importantly, derived classes of this parent class can provide detailed and powerful methods to process the directories containing DICOM files, saving results to an output file tree. For example, various modules are built off this chassis, including ``pfdicom_tagExtract`` and ``pfdicom_tagSub``.
 
 
 Dependencies
@@ -19,19 +19,17 @@ Dependencies
 
 The following dependencies are installed on your host system/python3 virtual env (they will also be automatically installed if pulled from pypi):
 
--  pfmisc (various misc modules and classes for the pf* family of objects)
--  pftree (create a dictionary representation of a filesystem hierarchy)
+-  ``pfmisc`` (various misc modules and classes for the pf* family of objects)
+-  ``pftree`` (create a dictionary representation of a filesystem hierarchy)
 
 Installation
 ~~~~~~~~~~~~
 
-The best method of installing this script and all of its dependencies is
-by fetching it from PyPI
+The best method of installing this script and all of its dependencies is by fetching it from PyPI
 
 .. code:: bash
 
         pip3 install pfdciom
-
 
 
 Command line arguments
