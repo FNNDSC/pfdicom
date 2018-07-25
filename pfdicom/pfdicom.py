@@ -357,7 +357,7 @@ class pfdicom(object):
         b_timerStart        = False
 
         self.dp.qprint(
-                "\tStarting pdicom run... (please be patient while running)", 
+                "\tStarting pfdicom run... (please be patient while running)", 
                 level = 1
                 )
 
