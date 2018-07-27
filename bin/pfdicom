@@ -106,6 +106,20 @@ def synopsis(ab_shortOnly = False):
         -O|--outputDir <outputDir>
         The directory to contain all output files.
 
+        [--outputLeafDir <outputLeafDirFormat>]
+        If specified, will apply the <outputLeafDirFormat> to the output
+        directories containing data. This is useful to blanket describe
+        final output directories with some descriptive text, such as 
+        'anon' or 'preview'. 
+
+        This is a formatting spec, so 
+
+            --outputLeafDir 'preview-%%s'
+
+        where %%s is the original leaf directory node, will prefix each
+        final directory containing output with the text 'preview-' which
+        can be useful in describing some features of the output set.
+
         [-e|--extension <DICOMextension>]
         An optional extension to filter the DICOM files of interest from the 
         <inputDir>. This is merely held by this base class as a member 
@@ -204,6 +218,10 @@ parser.add_argument("-t", "--threads",
                     help    = "number of threads for innermost loop processing",
                     dest    = 'threads',
                     default = "0")
+parser.add_argument("--outputLeafDir",
+                    help    = "formatting spec for output leaf directory",
+                    dest    = 'outputLeafDir',
+                    default = "")
 parser.add_argument("-y", "--synopsis",
                     help    = "short synopsis",
                     dest    = 'synopsis',
@@ -251,6 +269,7 @@ pf_dicom             = pfdicom.pfdicom(
                         inputFile           = args.inputFile,
                         outputDir           = args.outputDir,
                         outputFileStem      = args.outputFileStem,
+                        outputLeafDir       = args.outputLeafDir,
                         extension           = args.extension,
                         threads             = args.threads,
                         verbosity           = args.verbosity,
