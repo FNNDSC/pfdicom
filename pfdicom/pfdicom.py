@@ -60,6 +60,7 @@ class pfdicom(object):
         self.str_extension              = ''
         self.str_outputFileStem         = ''
         self.str_ouptutDir              = ''
+        self.str_outputLeafDir          = ''
 
         # pftree dictionary
         self.pf_tree                    = None
@@ -114,6 +115,7 @@ class pfdicom(object):
             if key == 'inputFile':          self.str_inputFile          = value
             if key == 'outputDir':          self.str_outputDir          = value
             if key == 'outputFileStem':     self.str_outputFileStem     = value
+            if key == 'outputLeafDir':      self.str_outputLeafDir      = value
             if key == 'extension':          self.str_extension          = value
             if key == 'threads':            self.numThreads             = int(value)
             if key == 'extension':          self.str_extension          = value
@@ -125,6 +127,7 @@ class pfdicom(object):
                             inputDir                = self.str_inputDir,
                             inputFile               = self.str_inputFile,
                             outputDir               = self.str_outputDir,
+                            outputLeafDir           = self.str_outputLeafDir,
                             threads                 = self.numThreads,
                             verbosity               = self.verbosityLevel,
                             relativeDir             = True
