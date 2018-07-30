@@ -24,24 +24,26 @@ Overview
 
 Most importantly, derived classes of this parent class can provide detailed and powerful methods to process the directories containing DICOM files, saving results to an output file tree. For example, various modules are built off this chassis, including ``pfdicom_tagExtract`` and ``pfdicom_tagSub``.
 
+Installation
+------------
 
 Dependencies
-------------
+~~~~~~~~~~~~
 
 The following dependencies are installed on your host system/python3 virtual env (they will also be automatically installed if pulled from pypi):
 
 -  ``pfmisc`` (various misc modules and classes for the pf* family of objects)
 -  ``pftree`` (create a dictionary representation of a filesystem hierarchy)
 
-Installation
-~~~~~~~~~~~~
+Using ``PyPI``
+~~~~~~~~~~~~~~
 
-The best method of installing this script and all of its dependencies is by fetching it from PyPI
+The best method of installing this script and all of its dependencies is
+by fetching it from PyPI
 
 .. code:: bash
 
-        pip3 install pfdciom
-
+        pip3 install pfdicom
 
 Command line arguments
 ----------------------
@@ -118,7 +120,7 @@ Command line arguments
 
 
 Examples
-~~~~~~~~
+--------
 
 Run on a target tree, creating internal representations of specific file and directory strucutres.
 
