@@ -139,20 +139,19 @@ For example,
 
         %_md5|7_PatientID
 
-An md5 hash of the 'PatientID' is determined. Of the resultant string, the first 7 chars are used. This is returned as the value for the PatientID tag.
+An md5 hash of the ``PatientID`` is determined. Of the resultant string, the first 7 chars are used. This is returned as the value for the ``PatientID`` tag.
 
 .. code:: bash
 
         %_strmsk|******01_PatientBirthDate
 
-The 'PatientBirthDate' value is masked such that the first six chars are conserved, but the final two are replaced by '01'. This  has the effect of setting the PatientBirthDate to the first day of the birth month.
+The ``PatientBirthDate`` value is masked such that the first six chars are conserved, but the final two are replaced by '01'. This  has the effect of setting the ``PatientBirthDate`` to the first day of the birth month.
 
 .. code:: bash
 
         %_nospc|-_ProtocolName
 
-The 'ProtocolName' is processed to remove all white space, and using a '-' character instead of any whitespace components.
-
+The ``ProtocolName`` is processed to remove all white space, and using a '-' character instead of any whitespace components.
 
 Examples
 --------
