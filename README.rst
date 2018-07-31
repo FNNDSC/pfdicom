@@ -137,9 +137,9 @@ For example,
 
 .. code:: bash
 
-        %_md5|7_PatientName
+        %_md5|7_PatientID
 
-The 'PatientName' value is used in an md5 hash. Of the resultant string, the first 7 chars are used. This is returned as the value for the PatientName tag.
+An md5 hash of the 'PatientID' is determined. Of the resultant string, the first 7 chars are used. This is returned as the value for the PatientID tag.
 
 .. code:: bash
 
