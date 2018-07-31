@@ -226,6 +226,16 @@ class pfdicom(object):
                         else:           l_n.append(j)
                     str_replace = ''.join(l_n)
                     astr = astr.replace('_%s_' % func, '')
+                if 'nospc' in func:
+                    # pudb.set_trace()
+                    l_funcTag   = func.split('_')[1:]
+                    func        = l_funcTag[0]
+                    l_args      = func.split('|')
+                    str_char    = ''
+                    if len(l_args) > 1:
+                        str_char = l_args[1]
+                    str_replace = str_char.join(str_replace.split())
+                    astr = astr.replace('_%s_' % func, '')
                 astr  = astr.replace('%' + tag, str_replace)
         
         return {
