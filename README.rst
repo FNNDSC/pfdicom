@@ -110,6 +110,12 @@ Command line arguments
         [-y|--synopsis]
         Show brief help.
 
+        [--json]
+        If true, dump the final return as JSON formatted string.
+
+        [--version]
+        If specified, print a version string.
+
         -v|--verbosity <level>
         Set the app verbosity level. 
 
@@ -117,6 +123,35 @@ Command line arguments
             1: Most important internal output -- none for 'pfdicom';
             2: As with level '1' but with simpleProgress bar in 'pftree';
             3: As with level '2' but with list of input dirs/files in 'pftree';
+
+String processing on tag values
+-------------------------------
+
+``pfidcom`` offers some functions on tag values -- these are typically string based. The syntax is:
+
+.. code:: bash
+
+        %_<functionName>|<arg>_<tagName>
+
+For example, 
+
+..code:: bash
+
+        %_md5|7_PatientName
+
+The 'PatientName' value is used in an md5 hash. Of the resultant string, the first 7 chars are used. This is returned as the value for the PatientName tag.
+
+.. code:: bash
+
+        %_strmsk|******01_PatientBirthDate
+
+The 'PatientBirthDate' value is masked such that the first six chars are conserved, but the final two are replaced by '01'. This  has the effect of setting the PatientBirthDate to the first day of the birth month.
+
+.. code:: bash
+
+        %_nospc|-_ProtocolName
+
+The 'ProtocolName' is processed to remove all white space, and using a '-' character instead of any whitespace components.
 
 
 Examples
