@@ -4,6 +4,7 @@ import      getpass
 import      argparse
 import      json
 import      pprint
+import      re
 
 # Project specific imports
 import      pfmisc
@@ -234,6 +235,10 @@ class pfdicom(object):
                     str_char    = ''
                     if len(l_args) > 1:
                         str_char = l_args[1]
+                    # strip out all non-alphnumeric chars and 
+                    # replace with space
+                    str_replace = re.sub(r'\W+', ' ', str_replace)
+                    # replace all spaces with str_char
                     str_replace = str_char.join(str_replace.split())
                     astr = astr.replace('_%s_' % func, '')
                 astr  = astr.replace('%' + tag, str_replace)
