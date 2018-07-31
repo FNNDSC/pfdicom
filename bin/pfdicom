@@ -19,7 +19,7 @@ import  pfmisc
 from    pfmisc._colors      import Colors
 from    pfmisc              import other
 
-str_version = "1.4.2"
+str_version = "1.4.4"
 str_desc = Colors.CYAN + """
 
         __    _ _                     
@@ -63,6 +63,8 @@ def synopsis(ab_shortOnly = False):
                     [-t|--threads <numThreads>]             \\
                     [-x|--man]                              \\
                     [-y|--synopsis]                         \\
+                    [-v <verbosity>]                        \\
+                    [--version]                             \\
                     [--json]
 
     BRIEF EXAMPLE
@@ -154,6 +156,9 @@ def synopsis(ab_shortOnly = False):
         [--json]
         If true, dump the final return as JSON formatted string.
 
+        [--version]
+        If specified, print a version string.
+
         -v|--verbosity <level>
         Set the app verbosity level. 
 
@@ -162,6 +167,30 @@ def synopsis(ab_shortOnly = False):
             2: As with level '1' but with simpleProgress bar in 'pftree';
             3: As with level '2' but with list of input dirs/files in 'pftree';
 
+    STRING PROCESSING ON TAG VALUES
+
+    ``pfidcom`` offers some functions on tag values -- these are typically
+    string based. The syntax is:
+
+        %_<functionName>|<arg>_<tagName>
+
+    For example, 
+
+        %_md5|7_PatientID
+        An md5 hash of the 'PatientID' is determined. Of the resultant string, 
+        the first 7 chars are used. This is returned as the value for the 
+        PatientID tag.
+
+        %_strmsk|******01_PatientBirthDate
+        The 'PatientBirthDate' value is masked such that the first six 
+        chars are conserved, but the final two are replaced by '01'. This 
+        has the effect of setting the PatientBirthDate to the first day of
+        the birth month.
+
+        %_nospc|-_ProtocolName
+        The 'ProtocolName' is processed to remove all white space, and using
+        a '-' character instead of any whitespace components.
+    
     EXAMPLES
 
     Run on a target tree, creating internal representations of specific file
