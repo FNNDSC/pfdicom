@@ -135,7 +135,7 @@ String processing on tag values
 
 For example, 
 
-..code:: bash
+.. code:: bash
 
         %_md5|7_PatientName
 
