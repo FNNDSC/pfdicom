@@ -129,13 +129,13 @@ String processing on tag values
 
 ``pfidcom`` offers some functions on tag values -- these are typically string based. The syntax is:
 
-.. code:: bash
+.. code:: html
 
         %_<functionName>|<arg>_<tagName>
 
 For example, 
 
-.. code:: bash
+.. code:: html
 
         %_md5|7_PatientID
 
@@ -147,7 +147,7 @@ An md5 hash of the ``PatientID`` is determined. Of the resultant string, the fir
 
 The ``PatientBirthDate`` value is masked such that the first six chars are conserved, but the final two are replaced by '01'. This  has the effect of setting the ``PatientBirthDate`` to the first day of the birth month.
 
-.. code:: bash
+.. code:: html
 
         %_nospc|-_ProtocolName
 
