@@ -163,7 +163,7 @@ Run on a target tree, creating internal representations of specific file and dir
         pfdicom         -I /var/www/html                \
                         -O /tmp                         \
                         -o %PatientID-%PatientAge       \
-                        -e dcm                          \
+                        -e .dcm                         \
                         -v 0 --json
 
         which will output only at script conclusion and will log a JSON formatted string.
