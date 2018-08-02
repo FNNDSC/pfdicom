@@ -53,7 +53,7 @@ class pfdicom(object):
         #
         self.str_desc                   = ''
         self.__name__                   = "pfdicom"
-        self.str_version                = '1.4.10'
+        self.str_version                = '1.4.12'
 
         # Directory and filenames
         self.str_workingDir             = ''
@@ -343,7 +343,8 @@ class pfdicom(object):
 
         b_status    = True
         l_file      = []
-        al_file = at_data[1]
+        str_path    = at_data[0]
+        al_file     = at_data[1]
         if len(self.str_extension):
             al_file = [x for x in al_file if self.str_extension in x]
 
