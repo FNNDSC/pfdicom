@@ -53,7 +53,7 @@ class pfdicom(object):
         #
         self.str_desc                   = ''
         self.__name__                   = "pfdicom"
-        self.str_version                = '1.4.12'
+        self.str_version                = '1.4.14'
 
         # Directory and filenames
         self.str_workingDir             = ''
@@ -73,6 +73,7 @@ class pfdicom(object):
         self.exitCode                   = 0
 
         self.b_json                     = False
+        self.b_followLinks              = False
 
         # The actual data volume and slice
         # are numpy ndarrays
@@ -123,6 +124,7 @@ class pfdicom(object):
             if key == 'extension':          self.str_extension          = value
             if key == 'verbosity':          self.verbosityLevel         = int(value)
             if key == 'json':               self.b_json                 = bool(value)
+            if key == 'followLinks':        self.b_followLinks          = bool(value)
 
         # Declare pf_tree
         self.pf_tree    = pftree.pftree(
@@ -132,6 +134,7 @@ class pfdicom(object):
                             outputLeafDir           = self.str_outputLeafDir,
                             threads                 = self.numThreads,
                             verbosity               = self.verbosityLevel,
+                            followLinks             = self.b_followLinks,
                             relativeDir             = True
         )
 
