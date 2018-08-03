@@ -19,7 +19,7 @@ import  pfmisc
 from    pfmisc._colors      import Colors
 from    pfmisc              import other
 
-str_version = "1.4.12"
+str_version = "1.4.14"
 str_desc = Colors.CYAN + """
 
         __    _ _                     
@@ -65,6 +65,7 @@ def synopsis(ab_shortOnly = False):
                     [-y|--synopsis]                         \\
                     [-v <verbosity>]                        \\
                     [--version]                             \\
+                    [--followLinks]                         \\
                     [--json]
 
     BRIEF EXAMPLE
@@ -155,6 +156,9 @@ def synopsis(ab_shortOnly = False):
 
         [--json]
         If true, dump the final return as JSON formatted string.
+
+        [--followLinks]
+        If specified, follow symbolic links.
 
         [--version]
         If specified, print a version string.
@@ -270,6 +274,11 @@ parser.add_argument("--json",
                     dest    = 'json',
                     action  = 'store_true',
                     default = False)
+parser.add_argument("--followLinks",
+                    help    = "follow symbolic links",
+                    dest    = 'followLinks',
+                    action  = 'store_true',
+                    default = False)
 parser.add_argument('--version',
                     help    = 'if specified, print version number',
                     dest    = 'b_version',
@@ -301,6 +310,7 @@ pf_dicom             = pfdicom.pfdicom(
                         outputLeafDir       = args.outputLeafDir,
                         extension           = args.extension,
                         threads             = args.threads,
+                        followLinks         = args.followLinks,
                         verbosity           = args.verbosity,
                         json                = args.json
                     )
