@@ -113,6 +113,9 @@ Command line arguments
         [--json]
         If true, dump the final return as JSON formatted string.
 
+        [--followLinks]
+        If specified, follow symbolic links.
+
         [--version]
         If specified, print a version string.
 
