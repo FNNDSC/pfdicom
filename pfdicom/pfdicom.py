@@ -53,7 +53,7 @@ class pfdicom(object):
         #
         self.str_desc                   = ''
         self.__name__                   = "pfdicom"
-        self.str_version                = '1.4.16'
+        self.str_version                = '1.4.18'
 
         # Directory and filenames
         self.str_workingDir             = ''
