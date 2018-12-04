@@ -53,7 +53,7 @@ class pfdicom(object):
         #
         self.str_desc                   = ''
         self.__name__                   = "pfdicom"
-        self.str_version                = '1.4.14'
+        self.str_version                = '1.4.16'
 
         # Directory and filenames
         self.str_workingDir             = ''
@@ -111,7 +111,7 @@ class pfdicom(object):
         """
 
         # pudb.set_trace()
-        self.declare_selfvars()
+        pfdicom.declare_selfvars(self)
 
         for key, value in kwargs.items():
             if key == 'inputDir':           self.str_inputDir           = value
