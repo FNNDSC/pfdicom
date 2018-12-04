@@ -110,13 +110,19 @@ class pfdicom(object):
         "output" relations.
         """
 
+        def outputDir_process(str_outputDir):
+            if str_outputDir == '%inputDir':
+                self.str_outputDir  = self.str_inputDir
+            else:
+                self.str_outputDir  = str_outputDir
+
         # pudb.set_trace()
         pfdicom.declare_selfvars(self)
 
         for key, value in kwargs.items():
             if key == 'inputDir':           self.str_inputDir           = value
             if key == 'inputFile':          self.str_inputFile          = value
-            if key == 'outputDir':          self.str_outputDir          = value
+            if key == "outputDir":          outputDir_process(value) 
             if key == 'outputFileStem':     self.str_outputFileStem     = value
             if key == 'outputLeafDir':      self.str_outputLeafDir      = value
             if key == 'extension':          self.str_extension          = value
