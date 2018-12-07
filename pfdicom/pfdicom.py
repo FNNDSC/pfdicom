@@ -53,7 +53,7 @@ class pfdicom(object):
         #
         self.str_desc                   = ''
         self.__name__                   = "pfdicom"
-        self.str_version                = '1.4.22'
+        self.str_version                = '1.4.24'
 
         # Directory and filenames
         self.str_workingDir             = ''
@@ -359,7 +359,7 @@ class pfdicom(object):
 
         if len(al_file):
             al_file.sort()
-            l_file      = al_file.sort()
+            l_file      = al_file
             b_status    = True
         else:
             self.dp.qprint( "No valid files to analyze found in path %s!" % str_path, 
