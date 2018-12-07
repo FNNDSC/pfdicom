@@ -53,7 +53,7 @@ class pfdicom(object):
         #
         self.str_desc                   = ''
         self.__name__                   = "pfdicom"
-        self.str_version                = '1.4.18'
+        self.str_version                = '1.4.20'
 
         # Directory and filenames
         self.str_workingDir             = ''
@@ -358,7 +358,7 @@ class pfdicom(object):
             al_file = [x for x in al_file if self.str_extension in x]
 
         if len(al_file):
-            l_file      = al_file
+            l_file      = al_file.sort()
             b_status    = True
         else:
             self.dp.qprint( "No valid files to analyze found in path %s!" % str_path, 
@@ -368,11 +368,6 @@ class pfdicom(object):
         return {
             'status':   b_status,
             'l_file':   l_file
-        }
-
-        return {
-            'status':   True,
-            'l_file':   al_file
         }
 
     def ret_dump(self, d_ret, **kwargs):
