@@ -53,7 +53,7 @@ class pfdicom(object):
         #
         self.str_desc                   = ''
         self.__name__                   = "pfdicom"
-        self.str_version                = '1.4.24'
+        self.str_version                = '1.6.0'
 
         # Directory and filenames
         self.str_workingDir             = ''
@@ -63,6 +63,7 @@ class pfdicom(object):
         self.str_outputFileStem         = ''
         self.str_ouptutDir              = ''
         self.str_outputLeafDir          = ''
+        self.maxDepth                   = -1
 
         # pftree dictionary
         self.pf_tree                    = None
@@ -121,6 +122,7 @@ class pfdicom(object):
 
         for key, value in kwargs.items():
             if key == 'inputDir':           self.str_inputDir           = value
+            if key == 'maxDepth':           self.maxDepth               = int(value)
             if key == 'inputFile':          self.str_inputFile          = value
             if key == "outputDir":          outputDir_process(value) 
             if key == 'outputFileStem':     self.str_outputFileStem     = value
@@ -135,6 +137,7 @@ class pfdicom(object):
         # Declare pf_tree
         self.pf_tree    = pftree.pftree(
                             inputDir                = self.str_inputDir,
+                            maxDepth                = self.maxDepth,
                             inputFile               = self.str_inputFile,
                             outputDir               = self.str_outputDir,
                             outputLeafDir           = self.str_outputLeafDir,

@@ -19,7 +19,7 @@ import  pfmisc
 from    pfmisc._colors      import Colors
 from    pfmisc              import other
 
-str_version = "1.4.24"
+str_version = "1.6.0"
 str_desc = Colors.CYAN + """
 
         __    _ _                     
@@ -57,6 +57,7 @@ def synopsis(ab_shortOnly = False):
 
         {scriptSyn}                                             \\
                     -I|--inputDir <inputDir>                \\
+                    [--maxdepth <dirDepth>]                 \\
                     [-i|--inputFile <inputFile>]            \\
                     [-e|--extension <DICOMextension>]       \\
                      -O|--outputDir <outputDir>             \\
@@ -100,6 +101,11 @@ def synopsis(ab_shortOnly = False):
         Input DICOM directory to examine. By default, the first file in this
         directory is examined for its tag information. There is an implicit
         assumption that each <inputDir> contains a single DICOM series.
+
+        [--maxdepth <dirDepth>]
+        The maximum depth to descend relative to the <inputDir>. Note, that
+        this counts from zero! Default of '-1' implies transverse the entire
+        directory tree.
 
         [-i|--inputFile <inputFile>]
         An optional <inputFile> specified relative to the <inputDir>. If 
@@ -226,6 +232,10 @@ parser.add_argument("-I", "--inputDir",
                     help    = "input dir",
                     dest    = 'inputDir',
                     default = '')
+parser.add_argument("-d", "--maxDepth",
+                    help    = "max depth, counting from zero, to descend",
+                    dest    = 'maxDepth',
+                    default = '-1')
 parser.add_argument("-i", "--inputFile",
                     help    = "input file",
                     dest    = 'inputFile',
@@ -304,6 +314,7 @@ if args.b_version:
 
 pf_dicom             = pfdicom.pfdicom(
                         inputDir            = args.inputDir,
+                        maxDepth            = args.maxDepth,
                         inputFile           = args.inputFile,
                         outputDir           = args.outputDir,
                         outputFileStem      = args.outputFileStem,
