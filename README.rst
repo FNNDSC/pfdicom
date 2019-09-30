@@ -145,6 +145,13 @@ For example,
 
 .. code:: html
 
+        %_name|patientID_PatientName
+
+
+Generate a random name and replace the PatientName with this value. Since each DICOM file in a series could conceivably have a different generated random name, use the 'PatientID' tag as a seed for the name generator. Note that in order to protect the parsing of DICOM tags, if used in sub-function arguments, the tag MUST start with a lower case.
+
+.. code:: html
+
         %_md5|7_PatientID
 
 An md5 hash of the ``PatientID`` is determined. Of the resultant string, the first 7 chars are used. This is returned as the value for the ``PatientID`` tag.
