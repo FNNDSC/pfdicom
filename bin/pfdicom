@@ -19,7 +19,7 @@ import  pfmisc
 from    pfmisc._colors      import Colors
 from    pfmisc              import other
 
-str_version = "1.6.0"
+str_version = "1.7.0"
 str_desc = Colors.CYAN + """
 
         __    _ _                     
@@ -123,9 +123,9 @@ def synopsis(ab_shortOnly = False):
 
         This is a formatting spec, so 
 
-            --outputLeafDir 'preview-%%s'
+            --outputLeafDir 'preview-%s'
 
-        where %%s is the original leaf directory node, will prefix each
+        where %s is the original leaf directory node, will prefix each
         final directory containing output with the text 'preview-' which
         can be useful in describing some features of the output set.
 
@@ -185,6 +185,14 @@ def synopsis(ab_shortOnly = False):
         %_<functionName>|<arg>_<tagName>
 
     For example, 
+
+        %_name|patientID_PatientName
+        Generate a random name and replace the PatientName with this value.
+        Since each DICOM file in a series could conceivably have a different
+        generated random name, use the 'PatientID' tag as a seed for the name
+        generator. Note that in order to protect the parsing of DICOM tags,
+        if used in sub-function arguments, the tag MUST start with a lower 
+        case.
 
         %_md5|7_PatientID
         An md5 hash of the 'PatientID' is determined. Of the resultant string, 
