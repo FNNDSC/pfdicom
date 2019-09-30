@@ -5,6 +5,9 @@ import      argparse
 import      json
 import      pprint
 import      re
+from        faker               import  Faker
+import      math
+import      logging
 
 # Project specific imports
 import      pfmisc
@@ -35,6 +38,12 @@ class pfdicom(object):
 
     """
 
+    # Turn off logging for the 'faker' module and create a class instance
+    # of the object
+    fakelogger              = logging.getLogger('faker')
+    fakelogger.propagate    = False
+    fake                    = Faker()
+
     _dictErr = {
         'outputDirFail'   : {
             'action'        : 'trying to check on the output directory, ',
@@ -53,7 +62,7 @@ class pfdicom(object):
         #
         self.str_desc                   = ''
         self.__name__                   = "pfdicom"
-        self.str_version                = '1.6.0'
+        self.str_version                = '1.7.0'
 
         # Directory and filenames
         self.str_workingDir             = ''
@@ -199,16 +208,112 @@ class pfdicom(object):
             006Y-7f38-output.txt
 
         """
+
+        def md5_process(func, str_replace):
+            """
+            md5 mangle the <str_replace>.
+            """
+            nonlocal    astr
+            l_funcTag   = []        # a function/tag list
+            l_args      = []        # the 'args' of the function
+            chars       = ''        # the number of resultant chars from func
+                                    # result to use
+            str_replace = hashlib.md5(str_replace.encode('utf-8')).hexdigest()
+            l_funcTag   = func.split('_')[1:]
+            func        = l_funcTag[0]
+            l_args      = func.split('|')
+            if len(l_args) > 1:
+                chars   = l_args[1]
+                str_replace     = str_replace[0:int(chars)]
+            astr        = astr.replace('_%s_' % func, '')
+            return astr, str_replace
+
+        def strmsk_process(func, str_replace):
+            """
+            string mask
+            """
+            nonlocal    astr
+            l_funcTag   = []        # a function/tag list
+            l_funcTag   = func.split('_')[1:]
+            func        = l_funcTag[0]
+            str_msk     = func.split('|')[1]
+            l_n = []
+            for i, j in zip(list(str_replace), list(str_msk)):
+                if j == '*':    l_n.append(i)
+                else:           l_n.append(j)
+            str_replace = ''.join(l_n)
+            astr        = astr.replace('_%s_' % func, '')
+            return astr, str_replace
+
+        def nospc_process(func, str_replace):
+            """
+            replace spaces in string
+            """
+            nonlocal    astr
+            l_funcTag   = []        # a function/tag list
+            l_args      = []        # the 'args' of the function
+            l_funcTag   = func.split('_')[1:]
+            func        = l_funcTag[0]
+            l_args      = func.split('|')
+            str_char    = ''
+            if len(l_args) > 1:
+                str_char = l_args[1]
+            # strip out all non-alphnumeric chars and 
+            # replace with space
+            str_replace = re.sub(r'\W+', ' ', str_replace)
+            # replace all spaces with str_char
+            str_replace = str_char.join(str_replace.split())
+            astr        = astr.replace('_%s_' % func, '')
+            return astr, str_replace
+
+        def convertToNumber (s):
+            return int.from_bytes(s.encode(), 'little')
+
+        def convertFromNumber (n):
+            return n.to_bytes(math.ceil(n.bit_length() / 8), 'little').decode()
+
+        def name_process(func, str_replace):
+            """
+            replace str_replace with a name
+
+            Note this sub-function can take as an argument a DICOM tag, which
+            is then used to seed the name caller. This assures that all
+            DICOM files belonging to the same series (or that have the same
+            DICOM tag value passed as argument) all get the same 'name'.
+
+            NB: If a DICOM tag is passed as an argument, the first character
+            of the tag must be lower case to protect parsing of any non-arg
+            DICOM tags.
+            """
+            # pudb.set_trace()
+            nonlocal    astr, d_DICOM
+            l_funcTag   = []        # a function/tag list
+            l_args      = []        # the 'args' of the function
+            l_funcTag   = func.split('_')[1:]
+            func        = l_funcTag[0]
+            l_args      = func.split('|')
+            if len(l_args) > 1:
+                str_argTag  = l_args[1]
+                str_argTag  = re.sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), str_argTag, 1)
+                if str_argTag in d_DICOM['d_dicomSimple']:
+                    str_seed    = d_DICOM['d_dicomSimple'][str_argTag]
+                    randSeed    = convertToNumber(str_seed)
+                    pfdicom.fake.seed(randSeed)
+            str_firstLast   = pfdicom.fake.name()
+            l_firstLast     = str_firstLast.split()
+            str_first       = l_firstLast[0]
+            str_last        = l_firstLast[1]
+            str_replace     = '%s^%s^ANON' % (str_last.upper(), str_first.upper())
+            astr            = astr.replace('_%s_' % func, '')
+            return astr, str_replace
+
         b_tagsFound         = False
         str_replace         = ''        # The lookup/processed tag value
         l_tags              = []        # The input string split by '%'
         l_tagsToSub         = []        # Remove any noise etc from each tag
-        l_funcTag           = []        # a function/tag list
-        l_args              = []        # the 'args' of the function
         func                = ''        # the function to apply
         tag                 = ''        # the tag in the funcTag combo
-        chars               = ''        # the number of resultant chars from func
-                                        # result to use
+
         if '%' in astr:
             l_tags          = astr.split('%')[1:]
             # Find which tags (mangled) in string match actual tags
@@ -221,39 +326,10 @@ class pfdicom(object):
             for tag, func in zip(l_tagsToSubSort, l_tags):
                 b_tagsFound     = True
                 str_replace     = d_DICOM['d_dicomSimple'][tag]
-                if 'md5' in func:
-                    str_replace = hashlib.md5(str_replace.encode('utf-8')).hexdigest()
-                    l_funcTag   = func.split('_')[1:]
-                    func        = l_funcTag[0]
-                    l_args      = func.split('|')
-                    if len(l_args) > 1:
-                        chars   = l_args[1]
-                        str_replace     = str_replace[0:int(chars)]
-                    astr = astr.replace('_%s_' % func, '')
-                if 'strmsk' in func:
-                    l_funcTag   = func.split('_')[1:]
-                    func        = l_funcTag[0]
-                    str_msk     = func.split('|')[1]
-                    l_n = []
-                    for i, j in zip(list(str_replace), list(str_msk)):
-                        if j == '*':    l_n.append(i)
-                        else:           l_n.append(j)
-                    str_replace = ''.join(l_n)
-                    astr = astr.replace('_%s_' % func, '')
-                if 'nospc' in func:
-                    # pudb.set_trace()
-                    l_funcTag   = func.split('_')[1:]
-                    func        = l_funcTag[0]
-                    l_args      = func.split('|')
-                    str_char    = ''
-                    if len(l_args) > 1:
-                        str_char = l_args[1]
-                    # strip out all non-alphnumeric chars and 
-                    # replace with space
-                    str_replace = re.sub(r'\W+', ' ', str_replace)
-                    # replace all spaces with str_char
-                    str_replace = str_char.join(str_replace.split())
-                    astr = astr.replace('_%s_' % func, '')
+                if 'md5'    in func: astr, str_replace   = md5_process(func, str_replace)
+                if 'strmsk' in func: astr, str_replace   = strmsk_process(func, str_replace)
+                if 'nospc'  in func: astr, str_replace   = nospc_process(func, str_replace)
+                if 'name'   in func: astr, str_replace   = name_process(func, str_replace)
                 astr  = astr.replace('%' + tag, str_replace)
         
         return {
