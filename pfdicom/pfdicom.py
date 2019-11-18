@@ -62,7 +62,7 @@ class pfdicom(object):
         #
         self.str_desc                   = ''
         self.__name__                   = "pfdicom"
-        self.str_version                = '1.7.4'
+        self.str_version                = '1.7.6'
 
         # Directory and filenames
         self.str_workingDir             = ''
@@ -356,6 +356,7 @@ class pfdicom(object):
         l_tagsToUse     = []
         d_tagsInString  = {}
         str_file        = ""
+        str_outputFile  = ""
 
         d_DICOM           = {
             'dcm':              None,
