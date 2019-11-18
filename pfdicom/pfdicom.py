@@ -62,7 +62,7 @@ class pfdicom(object):
         #
         self.str_desc                   = ''
         self.__name__                   = "pfdicom"
-        self.str_version                = '1.7.2'
+        self.str_version                = '1.7.4'
 
         # Directory and filenames
         self.str_workingDir             = ''
@@ -390,37 +390,38 @@ class pfdicom(object):
             self.dp.qprint('In directory: %s' % os.getcwd(),    comms = 'error')
             self.dp.qprint('Failed to read %s' % str_file,      comms = 'error')
             b_status    = False
-        d_DICOM['d_dcm']    = dict(d_DICOM['dcm'])
-        try:
-            d_DICOM['strRaw']   = str(d_DICOM['dcm'])
-        except:
-            self.dp.qprint('In directory: %s' % os.getcwd(),     comms = 'error')
-            self.dp.qprint('Failed to str convert %s' % str_file,comms = 'error')
-            self.dp.qprint('Possible source corruption or non standard tag',
-                            comms = 'error')
-            d_DICOM['strRaw']   = "Error in string conversion. Source corruption?"
-            b_status    = False
-        d_DICOM['l_tagRaw'] = d_DICOM['dcm'].dir()
-
-        if len(l_tags):
-            l_tagsToUse     = l_tags
-        else:
-            l_tagsToUse     = d_DICOM['l_tagRaw']
-
-        if 'PixelData' in l_tagsToUse:
-            l_tagsToUse.remove('PixelData')
-
-        for key in l_tagsToUse:
-            d_DICOM['d_dicom'][key]       = d_DICOM['dcm'].data_element(key)
+        if b_status:
+            d_DICOM['d_dcm']    = dict(d_DICOM['dcm'])
             try:
-                d_DICOM['d_dicomSimple'][key] = getattr(d_DICOM['dcm'], key)
+                d_DICOM['strRaw']   = str(d_DICOM['dcm'])
             except:
-                d_DICOM['d_dicomSimple'][key] = "no attribute"
-            d_DICOM['d_json'][key]        = str(d_DICOM['d_dicomSimple'][key])
+                self.dp.qprint('In directory: %s' % os.getcwd(),     comms = 'error')
+                self.dp.qprint('Failed to str convert %s' % str_file,comms = 'error')
+                self.dp.qprint('Possible source corruption or non standard tag',
+                                comms = 'error')
+                d_DICOM['strRaw']   = "Error in string conversion. Source corruption?"
+                b_status    = False
+            d_DICOM['l_tagRaw'] = d_DICOM['dcm'].dir()
 
-        # pudb.set_trace()
-        d_tagsInString  = self.tagsInString_process(d_DICOM, self.str_outputFileStem)
-        str_outputFile  = d_tagsInString['str_result']
+            if len(l_tags):
+                l_tagsToUse     = l_tags
+            else:
+                l_tagsToUse     = d_DICOM['l_tagRaw']
+
+            if 'PixelData' in l_tagsToUse:
+                l_tagsToUse.remove('PixelData')
+
+            for key in l_tagsToUse:
+                d_DICOM['d_dicom'][key]       = d_DICOM['dcm'].data_element(key)
+                try:
+                    d_DICOM['d_dicomSimple'][key] = getattr(d_DICOM['dcm'], key)
+                except:
+                    d_DICOM['d_dicomSimple'][key] = "no attribute"
+                d_DICOM['d_json'][key]        = str(d_DICOM['d_dicomSimple'][key])
+
+            # pudb.set_trace()
+            d_tagsInString  = self.tagsInString_process(d_DICOM, self.str_outputFileStem)
+            str_outputFile  = d_tagsInString['str_result']
 
         return {
             'status':           b_status,
