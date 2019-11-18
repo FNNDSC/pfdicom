@@ -62,7 +62,7 @@ class pfdicom(object):
         #
         self.str_desc                   = ''
         self.__name__                   = "pfdicom"
-        self.str_version                = '1.7.0'
+        self.str_version                = '1.7.2'
 
         # Directory and filenames
         self.str_workingDir             = ''
@@ -391,7 +391,15 @@ class pfdicom(object):
             self.dp.qprint('Failed to read %s' % str_file,      comms = 'error')
             b_status    = False
         d_DICOM['d_dcm']    = dict(d_DICOM['dcm'])
-        d_DICOM['strRaw']   = str(d_DICOM['dcm'])
+        try:
+            d_DICOM['strRaw']   = str(d_DICOM['dcm'])
+        except:
+            self.dp.qprint('In directory: %s' % os.getcwd(),     comms = 'error')
+            self.dp.qprint('Failed to str convert %s' % str_file,comms = 'error')
+            self.dp.qprint('Possible source corruption or non standard tag',
+                            comms = 'error')
+            d_DICOM['strRaw']   = "Error in string conversion. Source corruption?"
+            b_status    = False
         d_DICOM['l_tagRaw'] = d_DICOM['dcm'].dir()
 
         if len(l_tags):
