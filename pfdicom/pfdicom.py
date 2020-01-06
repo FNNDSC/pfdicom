@@ -62,7 +62,7 @@ class pfdicom(object):
         #
         self.str_desc                   = ''
         self.__name__                   = "pfdicom"
-        self.str_version                = '1.7.6'
+        self.str_version                = '1.7.8'
 
         # Directory and filenames
         self.str_workingDir             = ''
@@ -349,8 +349,34 @@ class pfdicom(object):
         should not be assigned since other threads
         might override/change these variables in mid-
         flight!
-
         """
+
+        def dcmToStr_doExplicit(d_dcm):
+            """
+            Perform an explicit element by element conversion on dictionary
+            of dcm FileDataset
+            """
+            b_status = True
+            self.dp.qprint('In directory: %s' % os.getcwd(),     comms = 'error')
+            self.dp.qprint('Failed to str convert %s' % str_file,comms = 'error')
+            self.dp.qprint('Possible source corruption or non standard tag',
+                            comms = 'error')
+            self.dp.qprint('Attempting explicit string conversion...',
+                            comms = 'error')
+            l_k         = list(d_dcm.keys())
+            str_raw     = ''
+            str_err     = ''
+            for k in l_k:
+                try:
+                    str_raw += str(d_dcm[k])
+                    str_raw += '\n'
+                except:
+                    str_err = 'Failed to string convert key "%s"' % k
+                    str_raw += str_err + "\n"
+                    self.dp.qprint(str_err, comms = 'error')
+                    b_status = False
+            return str_raw, b_status
+
         b_status        = False
         l_tags          = []
         l_tagsToUse     = []
@@ -384,25 +410,19 @@ class pfdicom(object):
         # self.dp.qprint("%s: Loading:                      %s" % (threading.currentThread().getName(),str_file))
 
         try:
-            # self.dcm    = dicom.read_file(str_file)
             d_DICOM['dcm']  = dicom.read_file(str_file)
-            b_status    = True
+            b_status        = True
         except:
             self.dp.qprint('In directory: %s' % os.getcwd(),    comms = 'error')
             self.dp.qprint('Failed to read %s' % str_file,      comms = 'error')
-            b_status    = False
+            b_status        = False
         if b_status:
+            d_DICOM['l_tagRaw'] = d_DICOM['dcm'].dir()
             d_DICOM['d_dcm']    = dict(d_DICOM['dcm'])
             try:
                 d_DICOM['strRaw']   = str(d_DICOM['dcm'])
             except:
-                self.dp.qprint('In directory: %s' % os.getcwd(),     comms = 'error')
-                self.dp.qprint('Failed to str convert %s' % str_file,comms = 'error')
-                self.dp.qprint('Possible source corruption or non standard tag',
-                                comms = 'error')
-                d_DICOM['strRaw']   = "Error in string conversion. Source corruption?"
-                b_status    = False
-            d_DICOM['l_tagRaw'] = d_DICOM['dcm'].dir()
+                d_DICOM['strRaw'], b_status = dcmToStr_doExplicit(d_DICOM['d_dcm'])
 
             if len(l_tags):
                 l_tagsToUse     = l_tags
