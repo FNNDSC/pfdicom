@@ -62,7 +62,7 @@ class pfdicom(object):
         #
         self.str_desc                   = ''
         self.__name__                   = "pfdicom"
-        self.str_version                = '1.7.8'
+        self.str_version                = '1.7.10'
 
         # Directory and filenames
         self.str_workingDir             = ''
@@ -298,7 +298,7 @@ class pfdicom(object):
                 if str_argTag in d_DICOM['d_dicomSimple']:
                     str_seed    = d_DICOM['d_dicomSimple'][str_argTag]
                     randSeed    = convertToNumber(str_seed)
-                    pfdicom.fake.seed(randSeed)
+                    Faker.seed(randSeed)
             str_firstLast   = pfdicom.fake.name()
             l_firstLast     = str_firstLast.split()
             str_first       = l_firstLast[0]
