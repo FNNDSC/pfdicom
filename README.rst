@@ -50,87 +50,108 @@ Command line arguments
 
 .. code:: html
 
-        -I|--inputDir <inputDir>
-        Input DICOM directory to examine. By default, the first file in this
-        directory is examined for its tag information. There is an implicit
-        assumption that each <inputDir> contains a single DICOM series.
+        --inputDir <inputDir>
+        Input directory to examine. The downstream nested structure of this
+        directory is examined and recreated in the <outputDir>.
+
+        [--outputDir <outputDir>]
+        The directory to contain a tree structure identical to the input
+        tree structure, and which contains all output files from the
+        per-input-dir processing.
+
+        [--outputFileStem <stem>]
+        An output file stem pattern to use
+
 
         [--maxdepth <dirDepth>]
         The maximum depth to descend relative to the <inputDir>. Note, that
         this counts from zero! Default of '-1' implies transverse the entire
         directory tree.
 
-        -i|--inputFile <inputFile>
-        An optional <inputFile> specified relative to the <inputDir>. If 
-        specified, then do not perform a directory walk, but convert only 
-        this file.
+        [--relativeDir]
+        A flag argument. If passed (i.e. True), then the dictionary key values
+        are taken to be relative to the <inputDir>, i.e. the key values
+        will not contain the <inputDir>; otherwise the key values will
+        contain the <inputDir>.
 
-        [-O|--outputDir <outputDir>]
-        The directory to contain all output files.
+        [--inputFile <inputFile>]
+        An optional <inputFile> specified relative to the <inputDir>. If
+        specified, then do not perform a directory walk, but target this
+        specific file.
 
-        [-O|--outputDir <outputDir>]
-        The directory to contain all output files.
+        [--fileFilter <someFilter1,someFilter2,...>]
+        An optional comma-delimated string to filter out files of interest
+        from the <inputDir> tree. Each token in the expression is applied in
+        turn over the space of files in a directory location according to a
+        logical operation, and only files that contain this token string in
+        their filename are preserved.
+
+        [--filteFilterLogic AND|OR]
+        The logical operator to apply across the fileFilter operation. Default
+        is OR.
+
+        [--dirFilter <someFilter1,someFilter2,...>]
+        An additional filter that will further limit any files to process to
+        only those files that exist in leaf directory nodes that have some
+        substring of each of the comma separated <someFilter> in their
+        directory name.
+
+        [--dirFilterLogic AND|OR]
+        The logical operator to apply across the dirFilter operation. Default
+        is OR.
 
         [--outputLeafDir <outputLeafDirFormat>]
         If specified, will apply the <outputLeafDirFormat> to the output
         directories containing data. This is useful to blanket describe
-        final output directories with some descriptive text, such as 
-        'anon' or 'preview'. 
+        final output directories with some descriptive text, such as
+        'anon' or 'preview'.
 
-        This is a formatting spec, so 
+        This is a formatting spec, so
 
-            --outputLeafDir 'preview-%s'
+            --outputLeafDir 'preview-%%s'
 
-        where %s is the original leaf directory node, will prefix each
+        where %%s is the original leaf directory node, will prefix each
         final directory containing output with the text 'preview-' which
         can be useful in describing some features of the output set.
 
-        -e|--extension <DICOMextension>
-        An optional extension to filter the DICOM files of interest from the 
-        <inputDir>.
-
-        [-t|--threads <numThreads>]
+        [--threads <numThreads>]
         If specified, break the innermost analysis loop into <numThreads>
         threads. Please note the following caveats:
 
-            * Only thread if you have a high CPU analysis loop. Since
-              most of the operations of this module will entail reading
-              and writing DICOM files, and since these operations are 
-              the bulk of the execution time, adding threading will not
+            * Only thread if you have a high CPU analysis loop. Note that
+              the input file read and output file write loops are not
+              threaded -- only the analysis loop is threaded. Thus, if the
+              bulk of execution time is in file IO, threading will not
               really help.
 
             * Threading will change the nature of the innermost looping
               across the problem domain, with the result that *all* of the
-              problem data will be read into memory! That means all of 
-              DICOMs across all of the subdirs! In non-threading mode,
-              only DICOMs from a single directory at a time are read
-              and then discarded.
-
-        This flag is less applicable to this base class. It is here
-        to provide fall-through compatibility with derived classes.
-
-        [-x|--man]
-        Show full help.
-
-        [-y|--synopsis]
-        Show brief help.
+              problem data will be read into memory! That means potentially
+              all the target input file data across the entire input directory
+              tree.
 
         [--json]
-        If true, dump the final return as JSON formatted string.
+        If specified, do a JSON dump of the entire return payload.
 
         [--followLinks]
         If specified, follow symbolic links.
 
-        [--version]
-        If specified, print a version string.
+        [--overwrite]
+        If specified, allow for overwriting of existing files
 
-        -v|--verbosity <level>
-        Set the app verbosity level. 
+        [--man]
+        Show full help.
 
-            0: No internal output;
-            1: Most important internal output -- none for 'pfdicom';
-            2: As with level '1' but with simpleProgress bar in 'pftree';
-            3: As with level '2' but with list of input dirs/files in 'pftree';
+        [--synopsis]
+        Show brief help.
+
+        [--verbosity <level>]
+        Set the app verbosity level. This ranges from 0...<N> where internal
+        log messages with a level=<M> will only display if M <= N. In this
+        manner increasing the level here can be used to show more and more
+        debugging info, assuming that debug messages in the code have been
+        tagged with a level.
+
 
 String processing on tag values
 -------------------------------
@@ -171,15 +192,14 @@ The ``ProtocolName`` is processed to remove all white space, and using a '-' cha
 Examples
 --------
 
-Run on a target tree, creating internal representations of specific file and directory strucutres.
+Run on a target tree, creating internal representations of specific file and directory strucutres:
 
 .. code:: bash
 
-        pfdicom         -I /var/www/html                \
-                        -O /tmp                         \
-                        -o %PatientID-%PatientAge       \
-                        -e .dcm                         \
-                        -v 0 --json
+        pfdicom                                                                 \
+                --inputDir ~/dicom                                              \
+                --outputDir /tmp                                                \
+                --fileFilter dcm                                                \
+                --printElapsedTime
 
-        which will output only at script conclusion and will log a JSON formatted string.
-
+other than setting up some internal variables, this will do little more than a pftree walk down the tree. This will typically be the first call executed by downstream modules that might extract tags or anonymize DICOM contents.

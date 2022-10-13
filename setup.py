@@ -12,7 +12,7 @@ def readme():
 
 setup(
       name             =   'pfdicom',
-      version          =   '1.7.10',
+      version          =   '2.0.0',
       description      =   'Base module for parsing DICOM files in the pf* family.',
       long_description =   readme(),
       author           =   'FNNDSC',
@@ -20,9 +20,11 @@ setup(
       url              =   'https://github.com/FNNDSC/pfdicom',
       packages         =   ['pfdicom'],
       install_requires =   ['pfmisc', 'pftree', 'pydicom', 'pydicom-ext', 'faker'],
-      #test_suite       =   'nose.collector',
-      #tests_require    =   ['nose'],
-      scripts          =   ['bin/pfdicom'],
+      entry_points={
+          'console_scripts': [
+              'pfdicom = pfdicom.__main__:main'
+          ]
+      },
       license          =   'MIT',
       zip_safe         =   False
 )
