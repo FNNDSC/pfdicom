@@ -173,6 +173,11 @@ parserSelf.add_argument("--outputFileStem",
                     default = "",
                     dest    = 'outputFileStem')
 
+parser  = ArgumentParser(description        = str_desc,
+                         formatter_class    = RawTextHelpFormatter,
+                         parents            = [parserCore, parserIO, parserSelf])
+
+
 def earlyExit_check(args) -> int:
     """Perform some preliminary checks
     """
@@ -191,9 +196,6 @@ def earlyExit_check(args) -> int:
 
 def main(argv=None):
 
-    parser  = ArgumentParser(description        = str_desc,
-                             formatter_class    = RawTextHelpFormatter,
-                             parents            = [parserCore, parserIO, parserSelf])
     args = parser.parse_args()
 
     if earlyExit_check(args): return 1
