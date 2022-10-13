@@ -17,8 +17,15 @@ from        pfmisc              import  error
 
 import      pydicom             as      dicom
 
+from        pftree              import  pftree
+
+try:
+    from    .                   import __name__, __version__
+except:
+    from    __init__            import __name__, __version__
+
+
 import      pudb
-import      pftree
 import      hashlib
 import      threading
 
@@ -29,11 +36,11 @@ class pfdicom(object):
     This class really only reads in a DICOM file, and populates some
     internal convenience member variables.
 
-    It is simply a common "base" class for all pfdicom objects. 
+    It is simply a common "base" class for all pfdicom objects.
     and is typically never called/used directly; derived classes
     are used to provide actual end functionality.
 
-    Furthermore, this class does not have a concept nor concern about 
+    Furthermore, this class does not have a concept nor concern about
     "output" relations.
 
     """
@@ -44,14 +51,6 @@ class pfdicom(object):
     fakelogger.propagate    = False
     fake                    = Faker()
 
-    _dictErr = {
-        'outputDirFail'   : {
-            'action'        : 'trying to check on the output directory, ',
-            'error'         : 'directory not specified. This is a *required* input',
-            'exitCode'      : 1}
-        }
-
-
     def declare_selfvars(self):
         """
         A block to declare self variables
@@ -61,45 +60,11 @@ class pfdicom(object):
         # Object desc block
         #
         self.str_desc                   = ''
-        self.__name__                   = "pfdicom"
-        self.str_version                = '1.7.10'
-
-        # Directory and filenames
-        self.str_workingDir             = ''
-        self.str_inputDir               = ''
-        self.str_inputFile              = ''
-        self.str_extension              = ''
-        self.str_outputFileStem         = ''
-        self.str_ouptutDir              = ''
-        self.str_outputLeafDir          = ''
-        self.maxDepth                   = -1
+        self.__name__                   = __name__
+        self.str_version                = __version__
 
         # pftree dictionary
-        self.pf_tree                    = None
-        self.numThreads                 = 1
-
-        self.str_stdout                 = ''
-        self.str_stderr                 = ''
-        self.exitCode                   = 0
-
-        self.b_json                     = False
-        self.b_followLinks              = False
-
-        # The actual data volume and slice
-        # are numpy ndarrays
-        self.dcm                        = None
-        self.d_dcm                      = {}     # dict convert of raw dcm
-        self.strRaw                     = ""
-        self.l_tagRaw                   = []
-
-        # Simpler dictionary representations of DICOM tags
-        # NB -- the pixel data is not read into the dictionary
-        # by default
-        self.d_dicom                   = {}     # values directly from dcm ojbect
-        self.d_dicomSimple             = {}     # formatted dict convert
-
-        # Convenience vars
-        self.tic_start                  = None
+        self.pf_tree                    = pftree.pftree(self.args)
 
         self.dp                         = None
         self.log                        = None
@@ -107,16 +72,16 @@ class pfdicom(object):
         self.pp                         = pprint.PrettyPrinter(indent=4)
         self.verbosityLevel             = 1
 
-    def __init__(self, **kwargs):
+    def __init__(self, *args, **kwargs):
         """
-        A "base" class for all pfdicom objects. This class is typically never 
+        A "base" class for all pfdicom objects. This class is typically never
         called/used directly; derived classes are used to provide actual end
         functionality.
 
         This class really only reads in a DICOM file, and populates some
         internal convenience member variables.
 
-        Furthermore, this class does not have a concept nor concern about 
+        Furthermore, this class does not have a concept nor concern about
         "output" relations.
         """
 
@@ -126,38 +91,17 @@ class pfdicom(object):
             else:
                 self.str_outputDir  = str_outputDir
 
+        self.args   = args[0]
+
         # pudb.set_trace()
+        # The 'self' isn't fully instantiated, so
+        # we call the following method on the class
+        # directly.
         pfdicom.declare_selfvars(self)
-
-        for key, value in kwargs.items():
-            if key == 'inputDir':           self.str_inputDir           = value
-            if key == 'maxDepth':           self.maxDepth               = int(value)
-            if key == 'inputFile':          self.str_inputFile          = value
-            if key == "outputDir":          outputDir_process(value) 
-            if key == 'outputFileStem':     self.str_outputFileStem     = value
-            if key == 'outputLeafDir':      self.str_outputLeafDir      = value
-            if key == 'extension':          self.str_extension          = value
-            if key == 'threads':            self.numThreads             = int(value)
-            if key == 'extension':          self.str_extension          = value
-            if key == 'verbosity':          self.verbosityLevel         = int(value)
-            if key == 'json':               self.b_json                 = bool(value)
-            if key == 'followLinks':        self.b_followLinks          = bool(value)
-
-        # Declare pf_tree
-        self.pf_tree    = pftree.pftree(
-                            inputDir                = self.str_inputDir,
-                            maxDepth                = self.maxDepth,
-                            inputFile               = self.str_inputFile,
-                            outputDir               = self.str_outputDir,
-                            outputLeafDir           = self.str_outputLeafDir,
-                            threads                 = self.numThreads,
-                            verbosity               = self.verbosityLevel,
-                            followLinks             = self.b_followLinks,
-                            relativeDir             = True
-        )
+        self.str_desc       = self.args['str_desc']
 
         # Set logging
-        self.dp                        = pfmisc.debug(    
+        self.dp                        = pfmisc.debug(
                                             verbosity   = self.verbosityLevel,
                                             within      = self.__name__
                                             )
@@ -166,16 +110,13 @@ class pfdicom(object):
 
     def env_check(self, *args, **kwargs):
         """
-        This method provides a common entry for any checks on the 
-        environment (input / output dirs, etc)
+        This method provides a common entry for any checks on the
+        environment specific to this module. Note that basic env
+        checks are already performed via the `pftree` delegate.
         """
         b_status    = True
         str_error   = ''
-        if not len(self.str_outputDir): 
-            b_status = False
-            str_error   = 'output directory not specified.'
-            self.dp.qprint(str_error, comms = 'error')
-            error.warn(self, 'outputDirFail', drawBox = True)
+
         return {
             'status':       b_status,
             'str_error':    str_error
@@ -258,7 +199,7 @@ class pfdicom(object):
             str_char    = ''
             if len(l_args) > 1:
                 str_char = l_args[1]
-            # strip out all non-alphnumeric chars and 
+            # strip out all non-alphnumeric chars and
             # replace with space
             str_replace = re.sub(r'\W+', ' ', str_replace)
             # replace all spaces with str_char
@@ -320,7 +261,7 @@ class pfdicom(object):
             l_tagsToSub     = [i for i in d_DICOM['l_tagRaw'] if any(i in b for b in l_tags)]
             # Need to arrange l_tagsToSub in same order as l_tags
             l_tagsToSubSort =  sorted(
-                l_tagsToSub, 
+                l_tagsToSub,
                 key = lambda x: [i for i, s in enumerate(l_tags) if x in s][0]
             )
             for tag, func in zip(l_tagsToSubSort, l_tags):
@@ -331,7 +272,7 @@ class pfdicom(object):
                 if 'nospc'  in func: astr, str_replace   = nospc_process(func, str_replace)
                 if 'name'   in func: astr, str_replace   = name_process(func, str_replace)
                 astr  = astr.replace('%' + tag, str_replace)
-        
+
         return {
             'status':       True,
             'b_tagsFound':  b_tagsFound,
@@ -404,10 +345,6 @@ class pfdicom(object):
 
         str_localFile   = os.path.basename(str_file)
         str_path        = os.path.dirname(str_file)
-        # self.dp.qprint("%s: In input base directory:      %s" % (threading.currentThread().getName(), self.str_inputDir))
-        # self.dp.qprint("%s: Reading DICOM file in path:   %s" % (threading.currentThread().getName(),str_path))
-        # self.dp.qprint("%s: Analysing tags on DICOM file: %s" % (threading.currentThread().getName(),str_localFile))      
-        # self.dp.qprint("%s: Loading:                      %s" % (threading.currentThread().getName(),str_file))
 
         try:
             d_DICOM['dcm']  = dicom.read_file(str_file)
@@ -453,34 +390,7 @@ class pfdicom(object):
             'l_tagsToUse':      l_tagsToUse
         }
 
-    def filelist_prune(self, at_data, *args, **kwargs):
-        """
-        Given a list of files, possibly prune list by 
-        extension.
-        """
-
-        b_status    = True
-        l_file      = []
-        str_path    = at_data[0]
-        al_file     = at_data[1]
-        if len(self.str_extension):
-            al_file = [x for x in al_file if self.str_extension in x]
-
-        if len(al_file):
-            al_file.sort()
-            l_file      = al_file
-            b_status    = True
-        else:
-            self.dp.qprint( "No valid files to analyze found in path %s!" % str_path, 
-                            comms = 'error', level = 3)
-            l_file      = None
-            b_status    = False
-        return {
-            'status':   b_status,
-            'l_file':   l_file
-        }
-
-    def ret_dump(self, d_ret, **kwargs):
+    def ret_jdump(self, d_ret, **kwargs):
         """
         JSON print results to console (or caller)
         """
@@ -489,8 +399,8 @@ class pfdicom(object):
             if k == 'JSONprint':    b_print     = bool(v)
         if b_print:
             print(
-                json.dumps(   
-                    d_ret, 
+                json.dumps(
+                    d_ret,
                     indent      = 4,
                     sort_keys   = True
                 )
@@ -498,57 +408,46 @@ class pfdicom(object):
 
     def run(self, *args, **kwargs):
         """
-        The run method is merely a thin shim down to the 
+        The run method is merely a thin shim down to the
         embedded pftree run method.
         """
-        b_status            = True
-        d_pftreeRun         = {}
-        d_inputAnalysis     = {}
-        d_env               = self.env_check()
-        b_timerStart        = False
+        b_status            : bool  = True
+        d_pftreeRun         : dict  = {}
+        d_env               : dict  = {}
+        b_timerStart        : bool  = False
+        d_pftreeProbe       : dict  = {}
+        d_pftreeRun         : dict  = {}
+        b_JSONprint         : bool  = True
 
         self.dp.qprint(
-                "\tStarting pfdicom run... (please be patient while running)", 
+                "\tStarting pfdicom run... (please be patient while running)",
                 level = 1
                 )
 
         for k, v in kwargs.items():
             if k == 'timerStart':   b_timerStart    = bool(v)
+            if k == 'JSONprint':    b_JSONprint     = bool(v)
 
         if b_timerStart:
             other.tic()
 
+        d_env               = self.env_check()
         if d_env['status']:
             d_pftreeRun = self.pf_tree.run(timerStart = False)
         else:
-            b_status    = False 
-
-        str_startDir    = os.getcwd()
-        os.chdir(self.str_inputDir)
-        if b_status:
-            if len(self.str_extension):
-                d_inputAnalysis = self.pf_tree.tree_process(
-                                inputReadCallback       = None,
-                                analysisCallback        = self.filelist_prune,
-                                outputWriteCallback     = None,
-                                applyResultsTo          = 'inputTree',
-                                applyKey                = 'l_file',
-                                persistAnalysisResults  = True
-                )
-        os.chdir(str_startDir)
+            b_status    = False
 
         d_ret = {
             'status':           b_status and d_pftreeRun['status'],
             'd_env':            d_env,
             'd_pftreeRun':      d_pftreeRun,
-            'd_inputAnalysis':  d_inputAnalysis,
             'runTime':          other.toc()
         }
 
-        if self.b_json:
-            self.ret_dump(d_ret, **kwargs)
-
-        self.dp.qprint('\tReturning from pfdicom run...', level = 1)
+        if self.args['json'] and b_JSONprint:
+            self.ret_jdump(d_ret, **kwargs)
+        else:
+            self.dp.qprint('\tReturning from pfdicom run...', level = 1)
 
         return d_ret
-        
+
