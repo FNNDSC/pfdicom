@@ -412,7 +412,6 @@ class pfdicom(object):
         embedded pftree run method.
         """
         b_status            : bool  = True
-        d_pftreeRun         : dict  = {}
         d_env               : dict  = {}
         b_timerStart        : bool  = False
         d_pftreeProbe       : dict  = {}
