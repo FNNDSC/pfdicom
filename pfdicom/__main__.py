@@ -14,7 +14,7 @@ try:
     from    .               import pfdicom
     from    .               import __pkg, __version__
 except:
-    from pfdicom            import pficom
+    from pfdicom            import pfdicom
     from __init__           import __pkg, __version__
 
 
