@@ -91,14 +91,29 @@ class pfdicom(object):
             else:
                 self.str_outputDir  = str_outputDir
 
-        self.args   = args[0]
-
         # pudb.set_trace()
         # The 'self' isn't fully instantiated, so
         # we call the following method on the class
         # directly.
         pfdicom.declare_selfvars(self)
-        self.str_desc       = self.args['str_desc']
+        self.args                       = args[0]
+        self.str_desc                   = self.args['str_desc']
+        if len(self.args):
+            kwargs  = {**self.args, **kwargs}
+
+        for key, value in kwargs.items():
+            if key == 'inputDir':           self.str_inputDir           = value
+            if key == 'maxDepth':           self.maxDepth               = int(value)
+            if key == 'inputFile':          self.str_inputFile          = value
+            if key == "outputDir":          outputDir_process(value)
+            if key == 'outputFileStem':     self.str_outputFileStem     = value
+            if key == 'outputLeafDir':      self.str_outputLeafDir      = value
+            if key == 'extension':          self.str_extension          = value
+            if key == 'threads':            self.numThreads             = int(value)
+            if key == 'extension':          self.str_extension          = value
+            if key == 'verbosity':          self.verbosityLevel         = int(value)
+            if key == 'json':               self.b_json                 = bool(value)
+            if key == 'followLinks':        self.b_followLinks          = bool(value)
 
         # Set logging
         self.dp                        = pfmisc.debug(
