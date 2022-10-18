@@ -29,10 +29,12 @@ from    pfmisc              import other
 import  pftree
 from    pftree.__main__     import  package_CLIcore,        \
                                     package_IOcore,         \
-                                    package_argSynopsisIO,  \
+                                    package_DSIO,           \
                                     package_argSynopsisCore,\
-                                    parserIO,               \
-                                    parserCore
+                                    package_argSynopsisIO,  \
+                                    package_argSynopsisDS,  \
+                                    parserCore,             \
+                                    parserIO
 
 str_desc = Colors.CYAN + """
 
@@ -64,11 +66,67 @@ package_CLIself = '''
 
 package_argSynopsisSelf = """
         [--outputFileStem <stem>]
-        An output file stem pattern to use
-"""
+        An output file stem pattern to use."""
+
+package_tagProcessingHelp   = """
+
+    STRING PROCESSING ON TAG VALUES
+
+    The core ``pfidcom`` module offers some functions on tag values -- these
+    are typically string based. The syntax is:
+
+        %_<functionName>|<arg>_<tagName>
+
+    For example,
+
+        %_name|patientID_PatientName
+        Generate a random name and replace the PatientName with this value.
+        Since each DICOM file in a series could conceivably have a different
+        generated random name, use the 'PatientID' tag as a seed for the name
+        generator. Note that in order to protect the parsing of DICOM tags,
+        if used in sub-function arguments, the tag MUST start with a lower
+        case.
+
+        %_md5|7_PatientID
+        An md5 hash of the 'PatientID' is determined. Of the resultant string,
+        the first 7 chars are used. This is returned as the value for the
+        PatientID tag.
+
+        %_strmsk|******01_PatientBirthDate
+        The 'PatientBirthDate' value is masked such that the first six
+        chars are conserved, but the final two are replaced by '01'. This
+        has the effect of setting the PatientBirthDate to the first day of
+        the birth month.
+
+        %_nospc|-_ProtocolName
+        The 'ProtocolName' is processed to remove all white space, and using
+        a '-' character instead of any whitespace components.
+    """
+
+package_exampleHelp = """
+    EXAMPLES
+
+    Run on a target tree, creating internal representations of specific file
+    and directory strucutres.
+
+
+        pfdicom                                                                 \\
+                --inputDir /var/www/html                                        \\
+                --outputDir /tmp                                                \\
+                --outputFile %PatientID-%PatientAge                             \\
+                --fileFilter dcm                                                \\
+                --printElapsedTime
+
+    which will output only at script conclusion and will log a JSON
+    formatted string.
+
+    """
 
 package_CLIfull             = package_IOcore + package_CLIself + package_CLIcore
 package_argsSynopsisFull    = package_argSynopsisIO + package_argSynopsisSelf + package_argSynopsisCore
+
+DSpackage_CLI               = package_DSIO   + package_CLIself + package_CLIcore
+DSpackage_argsSynopsisFull  = package_argSynopsisDS + package_argSynopsisSelf + package_argSynopsisCore
 
 def synopsis(ab_shortOnly = False):
     scriptName = os.path.basename(sys.argv[0])
@@ -107,57 +165,9 @@ def synopsis(ab_shortOnly = False):
         detailed and powerful methods to process the directories containing
         DICOM files, saving results to an output file tree.
 
-    ARGS """ + package_argsSynopsisFull + """
-
-    STRING PROCESSING ON TAG VALUES
-
-    ``pfidcom`` offers some functions on tag values -- these are typically
-    string based. The syntax is:
-
-        %_<functionName>|<arg>_<tagName>
-
-    For example,
-
-        %_name|patientID_PatientName
-        Generate a random name and replace the PatientName with this value.
-        Since each DICOM file in a series could conceivably have a different
-        generated random name, use the 'PatientID' tag as a seed for the name
-        generator. Note that in order to protect the parsing of DICOM tags,
-        if used in sub-function arguments, the tag MUST start with a lower
-        case.
-
-        %_md5|7_PatientID
-        An md5 hash of the 'PatientID' is determined. Of the resultant string,
-        the first 7 chars are used. This is returned as the value for the
-        PatientID tag.
-
-        %_strmsk|******01_PatientBirthDate
-        The 'PatientBirthDate' value is masked such that the first six
-        chars are conserved, but the final two are replaced by '01'. This
-        has the effect of setting the PatientBirthDate to the first day of
-        the birth month.
-
-        %_nospc|-_ProtocolName
-        The 'ProtocolName' is processed to remove all white space, and using
-        a '-' character instead of any whitespace components.
-
-    EXAMPLES
-
-    Run on a target tree, creating internal representations of specific file
-    and directory strucutres.
-
-
-        pfdicom                                                                 \\
-                --inputDir /var/www/html                                        \\
-                --outputDir /tmp                                                \\
-                --outputFile %PatientID-%PatientAge                             \\
-                --fileFilter dcm                                                \\
-                --printElapsedTime
-
-    which will output only at script conclusion and will log a JSON
-    formatted string.
-
-    """.format(script=scriptName)
+    ARGS """ +  package_argsSynopsisFull    + \
+                package_tagProcessingHelp   + \
+                package_exampleHelp
 
     if ab_shortOnly:
         return shortSynopsis
@@ -173,10 +183,13 @@ parserSelf.add_argument("--outputFileStem",
                     default = "",
                     dest    = 'outputFileStem')
 
-parser  = ArgumentParser(description        = str_desc,
-                         formatter_class    = RawTextHelpFormatter,
-                         parents            = [parserCore, parserIO, parserSelf])
+parserSA    = ArgumentParser(description        = str_desc,
+                             formatter_class    = RawTextHelpFormatter,
+                            parents             = [parserCore, parserIO, parserSelf])
 
+parserDS    = ArgumentParser(description        = str_desc,
+                             formatter_class    = RawTextHelpFormatter,
+                             parents            = [parserCore, parserSelf])
 
 def earlyExit_check(args) -> int:
     """Perform some preliminary checks
@@ -196,7 +209,7 @@ def earlyExit_check(args) -> int:
 
 def main(argv=None):
 
-    args = parser.parse_args()
+    args = parserSA.parse_args()
 
     if earlyExit_check(args): return 1
 
